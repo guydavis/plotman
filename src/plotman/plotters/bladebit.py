@@ -21,6 +21,7 @@ class Options:
     threads: typing.Optional[int] = None
     no_numa: bool = False
     diskplot: bool = False
+    diskplot_cache: typing.Optional[str] = None
 
 
 def check_configuration(
@@ -89,10 +90,20 @@ def create_command_line(
         args.append("-c")
         args.append(pool_contract_address)
 
-    if tmpdir is not None and options.diskplot:
+    if options.diskplot:
         args.append("diskplot")
-        args.append("--t1")
+
+    if options.diskplot and options.diskplot_cache:
+        args.append("--cache")
+        args.append(options.diskplot_cache)
+
+    if options.diskplot and tmpdir is not None:
+        args.append("-t1")
         args.append(tmpdir)
+    
+    if options.diskplot and tmp2dir is not None:
+        args.append("-t2")
+        args.append(tmp2dir)
 
     args.append(dstdir)
 
