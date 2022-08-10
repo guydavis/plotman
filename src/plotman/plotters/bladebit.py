@@ -20,6 +20,7 @@ class Options:
     executable: str = "bladebit"
     threads: typing.Optional[int] = None
     no_numa: bool = False
+    diskplot: bool = False
 
 
 def check_configuration(
@@ -87,6 +88,11 @@ def create_command_line(
     if pool_contract_address is not None:
         args.append("-c")
         args.append(pool_contract_address)
+
+    if tmpdir is not None and options.diskplot:
+        args.append("diskplot")
+        args.append("--t1")
+        args.append(tmpdir)
 
     args.append(dstdir)
 
