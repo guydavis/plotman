@@ -307,30 +307,54 @@ def arch_dir_report(
     return tab.draw()  # type: ignore[no-any-return]
 
 
-# TODO: remove this
 def dirs_report(
     jobs: typing.List[job.Job],
+    output_json: bool,
     dir_cfg: configuration.Directories,
     arch_cfg: typing.Optional[configuration.Archiving],
     sched_cfg: configuration.Scheduling,
     width: int,
 ) -> str:
-    dst_dir = dir_cfg.get_dst_directories()
-    reports = [
-        tmp_dir_report(jobs, dir_cfg, sched_cfg, width),
-        dst_dir_report(jobs, dst_dir, width),
-    ]
+    dst_dirs = dir_cfg.get_dst_directories()
     if arch_cfg is not None:
         freebytes, archive_log_messages = archive.get_archdir_freebytes(arch_cfg)
-        reports.extend(
-            [
-                "archive dirs free space:",
-                arch_dir_report(freebytes, width),
-                *archive_log_messages,
-            ]
-        )
+    if output_json:
+        reports = {}
+        reports['temporary'] = []
+        for i, d in enumerate(sorted(dir_cfg.tmp)):
+            phases = sorted(job.job_phases_for_tmpdir(d, jobs))
+            ready = manager.phases_permit_new_job(phases, d, sched_cfg, dir_cfg)
+            reports['temporary'].append({'tmp': d, 'ready': "OK" if ready else "--", 'phases': [str(pair) for pair in phases] })
+        reports['destination'] = []
+        dir2oldphase = manager.dstdirs_to_furthest_phase(jobs)
+        for d in sorted(dst_dirs):
+            eldest_ph = dir2oldphase.get(d, job.Phase(0, 0))
+            phases = job.job_phases_for_dstdir(d, jobs)
+            dir_plots = plot_util.list_plots(d)
+            gb_free = int(plot_util.df_b(d) / plot_util.GB)
+            n_plots = len(dir_plots)
+            priority = archive.compute_priority(eldest_ph, gb_free, n_plots)
+            reports['destination'].append({'dst': d, 'plots': n_plots, 'gb_free': gb_free, 'phases': [str(pair) for pair in phases], 'priority': priority})
+        if arch_cfg is not None:
+            reports['archiving'] = []
+            for (d, space) in sorted(freebytes.items()):
+                reports['archiving'].append( { 'dir': d, 'gb_free': int(int(space) / plot_util.GB) })
+        return json.dumps(reports)
+    else:
+        reports = [
+            tmp_dir_report(jobs, dir_cfg, sched_cfg, width),
+            dst_dir_report(jobs, dst_dirs, width),
+        ]
+        if arch_cfg is not None:
+            reports.extend(
+                [
+                    "archive dirs free space:",
+                    arch_dir_report(freebytes, width),
+                    *archive_log_messages,
+                ]
+            )
+        return "\n".join(reports) + "\n"
 
-    return "\n".join(reports) + "\n"
 
 
 def json_report(jobs: typing.List[job.Job]) -> str:
