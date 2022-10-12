@@ -4,6 +4,7 @@ target_definitions:
       command: rsync
       options: --preallocate --remove-source-files --skip-compress plot --whole-file
       site_root: null
+      site_path_filter: ".*"
       path_suffix: ""
 
     # The disk space script must return a line for each directory
@@ -21,7 +22,7 @@ target_definitions:
       site_root_stripped=$(echo "${site_root}" | sed 's;/\+$;;')
       # printf with %.0f used to handle mawk such as in Ubuntu Docker images
       # otherwise it saturates and you get saturated sizes like 2147483647
-      df -aBK | grep " ${site_root_stripped}/" | awk '{ gsub(/K$/,"",$4); printf "%s:%.0f\n", $6, $4*1024 }'
+      df -aBK | grep " ${site_root_stripped}/" | grep "${site_path_filter}" | awk '{ gsub(/K$/,"",$4); printf "%s:%.0f\n", $6, $4*1024 }'
     transfer_script: |
       #!/bin/bash
       set -evx
@@ -39,6 +40,7 @@ target_definitions:
       user: null
       host: null
       site_root: null
+      site_path_filter: ".*"
       site: null
       path_suffix: ""
     disk_space_script: |
@@ -47,7 +49,7 @@ target_definitions:
       site_root_stripped=$(echo "${site_root}" | sed 's;/\+$;;')
       # printf with %.0f used to handle mawk such as in Ubuntu Docker images
       # otherwise it saturates and you get saturated sizes like 2147483647
-      ssh -p "${ssh_port}" "${user}@${host}" "df -aBK | grep \" $(echo "${site_root_stripped}" | sed 's;/\+$;;')/\" | awk '{ gsub(/K\$/,\"\",\$4); printf \"%s:%.0f\n\", \$6, \$4*1024 }'"
+      ssh -p "${ssh_port}" "${user}@${host}" "df -aBK | grep \" $(echo "${site_root_stripped}" | sed 's;/\+$;;')/\" | grep \"${site_path_filter}\" | awk '{ gsub(/K\$/,\"\",\$4); printf \"%s:%.0f\n\", \$6, \$4*1024 }'"
     transfer_script: |
       #!/bin/bash
       set -evx

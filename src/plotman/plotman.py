@@ -51,7 +51,8 @@ class PlotmanArgParser:
             help="show current plotting status in prometheus readable format",
         )
 
-        sp.add_parser("dirs", help="show directories info")
+        p_dirs = sp.add_parser("dirs", help="show directories info")
+        p_dirs.add_argument("--json", action="store_true", help="export dirs report in json format")
 
         p_interactive = sp.add_parser(
             "interactive", help="run interactive control/monitoring mode"
@@ -339,7 +340,7 @@ def main() -> None:
             elif args.cmd == "dirs":
                 print(
                     reporting.dirs_report(
-                        jobs,
+                        jobs, args.json,
                         cfg.directories,
                         cfg.archiving,
                         cfg.scheduling,
