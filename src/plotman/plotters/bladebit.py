@@ -249,6 +249,10 @@ def phase_finished(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo
         info, phase=plotman.job.Phase(major=major + 1, minor=0), **duration_dict
     )
 
+@handlers.register(expression=r"^Table (?P<table>\d+)$")
+def table_started(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
+    table = int(match.group("table"))
+    return attr.evolve(info, phase=plotman.job.Phase(major=1, minor=table))
 
 @handlers.register(expression=r"^Allocating buffers\.$")
 def allocating_buffers(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
