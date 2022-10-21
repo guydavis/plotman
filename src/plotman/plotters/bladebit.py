@@ -121,6 +121,8 @@ class SpecificInfo:
     threads: int = 0
     # buffer: int = 0
     plot_size: int = 32
+    tmp_dir: str = ""
+    tmp2_dir: str = ""
     dst_dir: str = ""
     phase1_duration_raw: float = 0
     phase2_duration_raw: float = 0
@@ -136,8 +138,8 @@ class SpecificInfo:
             type="bladebit",
             dstdir=self.dst_dir,
             phase=self.phase,
-            tmpdir="",
-            tmp2dir="",
+            tmpdir=self.tmp_dir,
+            tmp2dir=self.tmp2_dir,
             started_at=self.started_at,
             plot_id=self.plot_id,
             plot_size=self.plot_size,
@@ -180,6 +182,10 @@ class Plotter:
     def parse_command_line(self, command_line: typing.List[str], cwd: str) -> None:
         # drop the bladebit
         arguments = command_line[1:]
+
+        # Remove the keyword `diskplot` that Click chokes on...
+        if 'diskplot' in arguments:
+            arguments.remove('diskplot')
 
         # TODO: We could at some point do version detection and pick the
         #       associated command.  For now we'll just use the latest one we have
@@ -315,6 +321,15 @@ def dst_dir(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
     #  Output path           : /mnt/tmp/01/manual-transfer/
     return attr.evolve(info, dst_dir=match.group(1))
 
+@handlers.register(expression=r"^ Temp1 path\s*:\s*(.+)")
+def tmp_dir(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
+    #  Temp1 path     : /plotting
+    return attr.evolve(info, tmp_dir=match.group(1))
+
+@handlers.register(expression=r"^ Temp2 path\s*:\s*(.+)")
+def tmp2_dir(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
+    #  Temp2 path     : /plotting
+    return attr.evolve(info, tmp2_dir=match.group(1))
 
 @handlers.register(
     expression=r"^Plot .*/(?P<filename>(?P<name>plot-k(?P<size>\d+)-(?P<year>\d+)-(?P<month>\d+)-(?P<day>\d+)-(?P<hour>\d+)-(?P<minute>\d+)-(?P<plot_id>\w+)).plot) .*"
@@ -556,4 +571,126 @@ def _cli_f3fbfff43ce493ec9e02db6f72c3b44f656ef137() -> None:
     # show_default=True,
 )
 def _cli_b48f262336362acd6f23c5ca9a43cfd6d244cb88() -> None:
+    pass
+
+# BladeBit Git on 2022-10-21 -> https://github.com/Chia-Network/bladebit/commit/a395f44cab55524a757a5cdb30dad4d08ee307f4
+@commands.register(version=(2, 0, 0))
+@click.command()
+@click.option(
+    "-t",
+    "--threads",
+    help=(
+        "Maximum number of threads to use."
+        "  For best performance, use all available threads (default behavior)."
+        "  Values below 2 are not recommended."
+    ),
+    type=int,
+    show_default=True,
+)
+@click.option(
+    "-n",
+    "--count",
+    help="Number of plots to create. Default = 1.",
+    type=int,
+    default=1,
+    show_default=True,
+)
+@click.option(
+    "-f",
+    "--farmer-key",
+    help="Farmer public key, specified in hexadecimal format.",
+    type=str,
+)
+@click.option(
+    "-p",
+    "--pool-key",
+    help=(
+        "Pool public key, specified in hexadecimal format."
+        "  Either a pool public key or a pool contract address must be specified."
+    ),
+    type=str,
+)
+@click.option(
+    "-c",
+    "--pool-contract",
+    help=(
+        "Pool contract address, specified in hexadecimal format."
+        "  Address where the pool reward will be sent to."
+        "  Only used if pool public key is not specified."
+    ),
+    type=str,
+)
+@click.option(
+    "-w",
+    "--warm-start",
+    help="Touch all pages of buffer allocations before starting to plot.",
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.option(
+    "-i",
+    "--plot-id",
+    help="Specify a plot id for debugging.",
+    type=str,
+)
+@click.option(
+    "--memo",
+    help="Specify a plot memo for debugging.",
+    type=str,
+)
+@click.option(
+    "--show-memo",
+    help="Output the memo of the next plot the be plotted.",
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.option(
+    "-v",
+    "--verbose",
+    help="Enable verbose output.",
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.option(
+    "-m",
+    "--no-numa",
+    help=(
+        "Disable automatic NUMA aware memory binding."
+        "  If you set this parameter in a NUMA system you will likely get degraded performance."
+    ),
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.option(
+    "--no-cpu-affinity",
+    help=(
+        "Disable assigning automatic thread affinity."
+        "  This is useful when running multiple simultaneous instances of bladebit as you can manually assign thread affinity yourself when launching bladebit."
+    ),
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.argument(
+    "disk_plot",
+)
+@click.option(
+    "--cache",
+    help="Size of cache to reserve for I/O.",
+    type=str,
+)
+@click.argument(
+    "out_dir",
+    # help=(
+    #     "Output directory in which to output the plots." "  This directory must exist."
+    # ),
+    type=click.Path(),
+    default=pathlib.Path("."),
+    # show_default=True,
+)
+def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     pass
