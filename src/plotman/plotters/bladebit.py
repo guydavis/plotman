@@ -90,6 +90,9 @@ def create_command_line(
         args.append("-c")
         args.append(pool_contract_address)
 
+    if options.no_numa:
+        args.append("--no-numa")
+
     if options.diskplot:
         args.append("diskplot")
 
