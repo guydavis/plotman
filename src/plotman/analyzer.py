@@ -79,6 +79,12 @@ def analyze(
                     if m:
                         phase_time[phase] = float(m.group(1))
 
+                # BLADEBIT: Phase timing.  Sample log line: "Finished Phase 2 in 407.80 seconds ( 6.8 minutes )."
+                for phase in ["1", "2", "3", "4"]:
+                    m = re.search(r"^Finished Phase " + phase + " in (\d+.\d+) seconds.*", line)
+                    if m:
+                        phase_time[phase] = float(m.group(1))
+
                 # Uniform sort.  Sample log line:
                 # Bucket 267 uniform sort. Ram: 0.920GiB, u_sort min: 0.688GiB, qs min: 0.172GiB.
                 #   or
@@ -129,6 +135,21 @@ def analyze(
                     data.setdefault(sl, {}).setdefault("%usort", []).append(
                         0
                     )  # Not available for MADMAX
+            
+                # BLADEBIT: Job completion.  Record total time in sliced data store.
+                # Sample log line: "Finished plotting in 6938.42 seconds ( 115.6 minutes )."
+                m = re.search(r"^Finished plotting in (\d+.\d+) seconds.*", line)
+                if m:
+                    data.setdefault(sl, {}).setdefault("total time", []).append(
+                        float(m.group(1))
+                    )
+                    for phase in ["1", "2", "3"]:
+                        data.setdefault(sl, {}).setdefault("phase " + phase, []).append(
+                            phase_time[phase]
+                        )
+                    data.setdefault(sl, {}).setdefault("%usort", []).append(
+                        0
+                    )  # Not available for BLADEBIT
 
     # Prepare report
     tab = tt.Texttable()
