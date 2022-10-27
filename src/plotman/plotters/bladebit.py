@@ -95,6 +95,8 @@ def create_command_line(
 
     if options.diskplot:
         args.append("diskplot")
+    else:
+        args.append("ramplot")
 
     if options.diskplot and options.diskplot_cache:
         args.append("--cache")
