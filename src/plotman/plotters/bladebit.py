@@ -191,6 +191,9 @@ class Plotter:
         # Remove the keyword `diskplot` that Click chokes on...
         if 'diskplot' in arguments:
             arguments.remove('diskplot')
+        # Remove the keyword `ramplot` that Click chokes on...
+        if 'ramplot' in arguments:
+            arguments.remove('ramplot')
 
         # TODO: We could at some point do version detection and pick the
         #       associated command.  For now we'll just use the latest one we have
