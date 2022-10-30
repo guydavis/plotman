@@ -317,7 +317,13 @@ def generating_plot(match: typing.Match[str], info: SpecificInfo) -> SpecificInf
 
 @handlers.register(expression=r"^Writing final plot tables to disk$")
 def writing_final(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
-    # Writing final plot tables to disk
+    # Bladebit 1.0: Writing final plot tables to disk
+    return attr.evolve(info, phase=plotman.job.Phase(major=5, minor=1))
+
+
+@handlers.register(expression=r"^Renaming plot to.*")
+def writing_final(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
+    # Bladebit 2.0: Renaming *.plot.tmp to *.plot
     return attr.evolve(info, phase=plotman.job.Phase(major=5, minor=1))
 
 
