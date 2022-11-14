@@ -8,6 +8,7 @@ import random
 import re
 import subprocess
 import sys
+import time
 import typing
 from datetime import datetime
 
@@ -54,9 +55,9 @@ def spawn_archive_process(
             args: typing.Dict[str, object] = status_or_cmd  # type: ignore[assignment]
 
             log_file_path = log_cfg.create_transfer_log_path(time=pendulum.now())
-
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
             log_messages.append(
-                f'Starting archive: {args["args"]} ; logging to {log_file_path}'
+                f'{timestamp} Starting archive: {args["args"]} ; logging to {log_file_path}'
             )
             # TODO: CAMPid 09840103109429840981397487498131
             try:

@@ -26,8 +26,10 @@ target_definitions:
     transfer_script: |
       #!/bin/bash
       set -evx
+      echo Launching local transfer activity at `date +"%Y-%m-%d %H:%M:%S"`
       full_destination=$(realpath --canonicalize-missing "${destination}/${path_suffix}")
-      "${command}" ${options} "${source}" "${full_destination}/"
+      "${command}" ${options} -h --info=progress2 "${source}" "${full_destination}/""
+      echo Completed local transfer activity at `date +"%Y-%m-%d %H:%M:%S"`
     transfer_process_name: "{command}"
     transfer_process_argument_prefix: "{site_root}"
   rsyncd:
@@ -53,11 +55,12 @@ target_definitions:
     transfer_script: |
       #!/bin/bash
       set -evx
-      echo Launching transfer activity
+      echo Launching remote transfer activity at `date +"%Y-%m-%d %H:%M:%S"`
       full_destination=$(realpath --canonicalize-missing "${destination}/${path_suffix}")
       relative_path=$(realpath --canonicalize-missing --relative-to="${site_root}" "${full_destination}")
       url_root="rsync://${user}@${host}:${rsync_port}/${site}"
-      "${command}" ${options} "${source}" "${url_root}/${relative_path}/"
+      "${command}" ${options} -h --info=progress2 "${source}" "${url_root}/${relative_path}/"
+      echo Completed remote transfer activity at `date +"%Y-%m-%d %H:%M:%S"`
     transfer_process_name: "{command}"
     transfer_process_argument_prefix: "rsync://{user}@{host}:{rsync_port}/{site}"
 #  external_script:
