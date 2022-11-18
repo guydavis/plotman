@@ -28,7 +28,7 @@ target_definitions:
       set -evx
       echo Launching local transfer activity at `date +"%Y-%m-%d %H:%M:%S"`
       full_destination=$(realpath --canonicalize-missing "${destination}/${path_suffix}")
-      "${command}" ${options} -h --info=progress2 "${source}" "${full_destination}/""
+      "${command}" ${options} -h --info=progress2 "${source}" "${full_destination}/"
       echo Completed local transfer activity at `date +"%Y-%m-%d %H:%M:%S"`
     transfer_process_name: "{command}"
     transfer_process_argument_prefix: "{site_root}"
