@@ -257,7 +257,7 @@ def main() -> None:
         root_handler.setFormatter(root_formatter)
         root_logger.addHandler(root_handler)
         root_logger.setLevel(logging.INFO)
-        root_logger.info("Start root logger")
+        #root_logger.info("Start root logger")
 
         disk_space_logger = logging.getLogger("disk_space")
         disk_space_logger.propagate = False
@@ -284,10 +284,10 @@ def main() -> None:
                 )
 
                 # TODO: report this via a channel that can be polled on demand, so we don't spam the console
-                if started:
-                    print("%s" % (msg))
-                else:
-                    print("...sleeping %d s: %s" % (cfg.scheduling.polling_time_s, msg))
+                #if started:
+                #    print("%s" % (msg))
+                #else:
+                #    print("...sleeping %d s: %s" % (cfg.scheduling.polling_time_s, msg))
                 root_logger.info("[plot] %s", msg)
 
                 time.sleep(cfg.scheduling.polling_time_s)
@@ -370,10 +370,10 @@ def main() -> None:
                     firstit = True
                     while True:
                         if not firstit:
-                            print(
-                                "Sleeping %d s until next iteration..."
-                                % (cfg.scheduling.polling_time_s)
-                            )
+                            #print(
+                            #    "Sleeping %d s until next iteration..."
+                            #    % (cfg.scheduling.polling_time_s)
+                            #)
                             time.sleep(cfg.scheduling.polling_time_s)
                             jobs = Job.get_running_jobs(cfg.logging.plots)
                         firstit = False
