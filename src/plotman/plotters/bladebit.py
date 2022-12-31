@@ -22,7 +22,7 @@ class Options:
     no_numa: bool = False
     diskplot: bool = False
     diskplot_cache: typing.Optional[str] = None
-    n_buckets: typing.Optional[int] = None
+    diskplot_buckets: typing.Optional[int] = None
     f1threads: typing.Optional[int] = None
     fpthreads: typing.Optional[int] = None
     cthreads: typing.Optional[int] = None
@@ -108,9 +108,9 @@ def create_command_line(
         args.append("--cache")
         args.append(options.diskplot_cache)
     
-    if options.diskplot and options.n_buckets:
+    if options.diskplot and options.diskplot_buckets:
         args.append("--buckets")
-        args.append(options.n_buckets)
+        args.append(options.diskplot_buckets)
 
     if options.diskplot and options.f1threads:
         args.append("--f1-threads")
