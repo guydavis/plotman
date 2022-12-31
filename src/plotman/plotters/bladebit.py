@@ -22,6 +22,12 @@ class Options:
     no_numa: bool = False
     diskplot: bool = False
     diskplot_cache: typing.Optional[str] = None
+    n_buckets: typing.Optional[int] = None
+    f1threads: typing.Optional[int] = None
+    fpthreads: typing.Optional[int] = None
+    cthreads: typing.Optional[int] = None
+    p2threads: typing.Optional[int] = None
+    p3threads: typing.Optional[int] = None
 
 
 def check_configuration(
@@ -101,6 +107,30 @@ def create_command_line(
     if options.diskplot and options.diskplot_cache:
         args.append("--cache")
         args.append(options.diskplot_cache)
+    
+    if options.diskplot and options.n_buckets:
+        args.append("--buckets")
+        args.append(options.n_buckets)
+
+    if options.diskplot and options.f1threads:
+        args.append("--f1-threads")
+        args.append(options.f1threads)
+
+    if options.diskplot and options.fpthreads:
+        args.append("--fp-threads")
+        args.append(options.fpthreads)
+
+    if options.diskplot and options.cthreads:
+        args.append("--c-threads")
+        args.append(options.cthreads)
+
+    if options.diskplot and options.p2threads:
+        args.append("--p2-threads")
+        args.append(options.p2threads)
+
+    if options.diskplot and options.p3threads:
+        args.append("--p3-threads")
+        args.append(options.p3threads)
 
     if options.diskplot and tmpdir is not None:
         args.append("-t1")
