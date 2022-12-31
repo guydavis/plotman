@@ -26,7 +26,7 @@ class Options:
     n_rmulti2: int = 1
     tmptoggle: bool = False
     waitforcopy: bool = False
-    port: int = 8444
+    network_port: int = 8444
 
     def chosen_executable(self) -> str:
         if self.k > 32:
@@ -67,8 +67,6 @@ def create_command_line(
         str(options.k),
         "-n",
         str(options.n),
-        "-x",
-        str(options.port),
         "-r",
         str(options.n_threads),
         "-u",
