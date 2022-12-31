@@ -51,7 +51,8 @@ class PlotmanArgParser:
             help="show current plotting status in prometheus readable format",
         )
 
-        sp.add_parser("dirs", help="show directories info")
+        p_dirs = sp.add_parser("dirs", help="show directories info")
+        p_dirs.add_argument("--json", action="store_true", help="export dirs report in json format")
 
         p_interactive = sp.add_parser(
             "interactive", help="run interactive control/monitoring mode"
@@ -162,7 +163,7 @@ class PlotmanArgParser:
 
 
 def get_term_width(cfg: configuration.PlotmanConfig) -> int:
-    default_columns = 120  # 80 is typically too narrow.
+    default_columns = 160  # 80 is typically too narrow, support wider consoles.
     if cfg.user_interface.use_stty_size:
         try:
             (rows_string, columns_string) = os.popen("stty size", "r").read().split()
@@ -256,7 +257,7 @@ def main() -> None:
         root_handler.setFormatter(root_formatter)
         root_logger.addHandler(root_handler)
         root_logger.setLevel(logging.INFO)
-        root_logger.info("Start root logger")
+        #root_logger.info("Start root logger")
 
         disk_space_logger = logging.getLogger("disk_space")
         disk_space_logger.propagate = False
@@ -283,10 +284,10 @@ def main() -> None:
                 )
 
                 # TODO: report this via a channel that can be polled on demand, so we don't spam the console
-                if started:
-                    print("%s" % (msg))
-                else:
-                    print("...sleeping %d s: %s" % (cfg.scheduling.polling_time_s, msg))
+                #if started:
+                #    print("%s" % (msg))
+                #else:
+                #    print("...sleeping %d s: %s" % (cfg.scheduling.polling_time_s, msg))
                 root_logger.info("[plot] %s", msg)
 
                 time.sleep(cfg.scheduling.polling_time_s)
@@ -339,7 +340,7 @@ def main() -> None:
             elif args.cmd == "dirs":
                 print(
                     reporting.dirs_report(
-                        jobs,
+                        jobs, args.json,
                         cfg.directories,
                         cfg.archiving,
                         cfg.scheduling,
@@ -369,10 +370,10 @@ def main() -> None:
                     firstit = True
                     while True:
                         if not firstit:
-                            print(
-                                "Sleeping %d s until next iteration..."
-                                % (cfg.scheduling.polling_time_s)
-                            )
+                            #print(
+                            #    "Sleeping %d s until next iteration..."
+                            #    % (cfg.scheduling.polling_time_s)
+                            #)
                             time.sleep(cfg.scheduling.polling_time_s)
                             jobs = Job.get_running_jobs(cfg.logging.plots)
                         firstit = False
