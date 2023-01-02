@@ -17,22 +17,30 @@ import plotman.plotters
 @attr.frozen
 class Options:
     executable: str = "chia_plot"
+    executable_k34: str = "chia_plot_k34"
     n: int = 1
     k: int = 32
     n_threads: int = 4
     n_buckets: int = 256
     n_buckets3: int = 256
     n_rmulti2: int = 1
-    network_port: int = 8444
     tmptoggle: bool = False
     waitforcopy: bool = False
+    network_port: int = 8444
+
+    def chosen_executable(self) -> str:
+        if self.k > 32:
+            return self.executable_k34
+
+        return self.executable
+
 
 def check_configuration(
     options: Options, pool_contract_address: typing.Optional[str]
 ) -> None:
     if pool_contract_address is not None:
         completed_process = subprocess.run(
-            args=[options.executable, "--help"],
+            args=[options.chosen_executable(), "--help"],
             capture_output=True,
             check=True,
             encoding="utf-8",
@@ -54,11 +62,11 @@ def create_command_line(
     pool_contract_address: typing.Optional[str],
 ) -> typing.List[str]:
     args = [
-        options.executable if options.k <= 32 else 'chia_plot_k34',
+        options.chosen_executable(),
+        "-k",
+        str(options.k),
         "-n",
         str(options.n),
-         "-k",
-        str(options.k),
         "-r",
         str(options.n_threads),
         "-u",
@@ -165,7 +173,10 @@ class Plotter:
         if len(command_line) == 0:
             return False
 
-        return os.path.basename(command_line[0]).lower().startswith("chia_plot")
+        return os.path.basename(command_line[0]).lower() in {
+            "chia_plot",
+            "chia_plot_k34",
+        }
 
     def common_info(self) -> plotman.plotters.CommonInfo:
         return self.info.common()
@@ -663,15 +674,16 @@ def _cli_974d6e5f1440f68c48492122ca33828a98864dfc() -> None:
 def _cli_aaa3214d4abbd49bb99c2ec087e27c765424cd65() -> None:
     pass
 
-# Madmax Git on 2021-10-28 -> https://github.com/madMAx43v3r/chia-plotter/commit/8332d625220b9a54c097d85d6eb4c6b0c9464214
+
+# Madmax Git on 2022-03-26 -> https://github.com/madMAx43v3r/chia-plotter/commit/ecec17d25cd547fa4bb64b2eb7455b831c8a2882
 @commands.register(version=(3,))
 @click.command()
-# https://github.com/madMAx43v3r/chia-plotter/blob/8332d625220b9a54c097d85d6eb4c6b0c9464214/LICENSE
-# https://github.com/madMAx43v3r/chia-plotter/blob/8332d625220b9a54c097d85d6eb4c6b0c9464214/src/chia_plot.cpp#L238-L253
+# https://github.com/madMAx43v3r/chia-plotter/blob/ecec17d25cd547fa4bb64b2eb7455b831c8a2882/LICENSE
+# https://github.com/madMAx43v3r/chia-plotter/blob/ecec17d25cd547fa4bb64b2eb7455b831c8a2882/src/chia_plot.cpp#L257-L277
 @click.option(
     "-k",
     "--size",
-    help="K size (default = 32, supports 29,30,31,32,34)",
+    help="K size (default = 32, k <= 34)",
     type=int,
     default=32,
     show_default=True,
@@ -679,7 +691,7 @@ def _cli_aaa3214d4abbd49bb99c2ec087e27c765424cd65() -> None:
 @click.option(
     "-x",
     "--port",
-    help="Network port (default = 8444, chives = 9699)",
+    help="Network port (default = 8444, chives = 9699, mmx = 11337)",
     type=int,
     default=8444,
     show_default=True,
@@ -739,6 +751,14 @@ def _cli_aaa3214d4abbd49bb99c2ec087e27c765424cd65() -> None:
     show_default=True,
 )
 @click.option(
+    "-s",
+    "--stagedir",
+    help="Stage directory (default = <tmpdir>)",
+    type=click.Path(),
+    default=None,
+    show_default=True,
+)
+@click.option(
     "-w",
     "--waitforcopy",
     help="Wait for copy to start next plot",
@@ -759,11 +779,25 @@ def _cli_aaa3214d4abbd49bb99c2ec087e27c765424cd65() -> None:
     "-G", "--tmptoggle", help="Alternate tmpdir/tmpdir2", type=str, default=None
 )
 @click.option(
+    "-D",
+    "--directout",
+    help="Create plot directly in finaldir (default = false)",
+    type=bool,
+    default=False,
+)
+@click.option(
+    "-Z",
+    "--unique",
+    help="Make unique plot (default = false)",
+    type=bool,
+    default=False,
+)
+@click.option(
     "-K",
     "--rmulti2",
     help="Thread multiplier for P2 (default = 1)",
     type=int,
     default=1,
 )
-def _cli_8332d625220b9a54c097d85d6eb4c6b0c9464214() -> None:
+def _cli_ecec17d25cd547fa4bb64b2eb7455b831c8a2882() -> None:
     pass
