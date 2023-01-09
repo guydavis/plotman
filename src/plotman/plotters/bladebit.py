@@ -110,27 +110,27 @@ def create_command_line(
     
     if options.diskplot and options.diskplot_buckets:
         args.append("--buckets")
-        args.append(options.diskplot_buckets)
+        args.append(str(options.diskplot_buckets))
 
     if options.diskplot and options.f1threads:
         args.append("--f1-threads")
-        args.append(options.f1threads)
+        args.append(str(options.f1threads))
 
     if options.diskplot and options.fpthreads:
         args.append("--fp-threads")
-        args.append(options.fpthreads)
+        args.append(str(options.fpthreads))
 
     if options.diskplot and options.cthreads:
         args.append("--c-threads")
-        args.append(options.cthreads)
+        args.append(str(options.cthreads))
 
     if options.diskplot and options.p2threads:
         args.append("--p2-threads")
-        args.append(options.p2threads)
+        args.append(str(options.p2threads))
 
     if options.diskplot and options.p3threads:
         args.append("--p3-threads")
-        args.append(options.p3threads)
+        args.append(str(options.p3threads))
 
     if options.diskplot and tmpdir is not None:
         args.append("-t1")
@@ -217,13 +217,6 @@ class Plotter:
     def parse_command_line(self, command_line: typing.List[str], cwd: str) -> None:
         # drop the bladebit
         arguments = command_line[1:]
-
-        # Remove the keyword `diskplot` that Click chokes on...
-        if 'diskplot' in arguments:
-            arguments.remove('diskplot')
-        # Remove the keyword `ramplot` that Click chokes on...
-        if 'ramplot' in arguments:
-            arguments.remove('ramplot')
 
         # TODO: We could at some point do version detection and pick the
         #       associated command.  For now we'll just use the latest one we have
@@ -724,7 +717,7 @@ def _cli_b48f262336362acd6f23c5ca9a43cfd6d244cb88() -> None:
     default=False,
 )
 @click.argument(
-    "disk_plot",
+    "diskplot",
 )
 @click.option(
     "--cache",
@@ -846,7 +839,7 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     default=False,
 )
 @click.argument(
-    "disk_plot",
+    "diskplot",
 )
 @click.option(
     "--cache",
@@ -866,35 +859,35 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     "-b",
     "--buckets",
     help="The number of buckets to use. The default is 256.",
-    type=str,
+    type=int,
 )
 @click.option(
     "--f1-threads",
     help="Override the thread count for F1 generation.",
-    type=str,
+    type=int,
 )
 @click.option(
     "--fp-threads",
     help="Override the thread count for forward propogation.",
-    type=str,
+    type=int,
 )
 @click.option(
     "--c-threads",
     help="Override the thread count for C table processing.",
-    type=str,
+    type=int,
 )
 @click.option(
     "--p2-threads",
     help="Override the thread count for Phase 2.",
-    type=str,
+    type=int,
 )
 @click.option(
     "--p3-threads",
     help="Override the thread count for Phase 3.",
-    type=str,
+    type=int,
 )
 @click.argument(
-    "ram_plot",
+    "ramplot",
 )
 def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
     pass
