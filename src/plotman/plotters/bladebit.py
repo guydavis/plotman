@@ -742,3 +742,159 @@ def _cli_b48f262336362acd6f23c5ca9a43cfd6d244cb88() -> None:
 )
 def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     pass
+
+# BladeBit Git on 2023-01-09 -> https://github.com/Chia-Network/bladebit/commit/9fac46aff0476e829d476412de18497a3a2f7ed8
+@commands.register(version=(2, 0, 1))
+@click.command()
+@click.option(
+    "-t",
+    "--threads",
+    help=(
+        "Maximum number of threads to use."
+        "  For best performance, use all available threads (default behavior)."
+        "  Values below 2 are not recommended."
+    ),
+    type=int,
+    show_default=True,
+)
+@click.option(
+    "-n",
+    "--count",
+    help="Number of plots to create. Default = 1.",
+    type=int,
+    default=1,
+    show_default=True,
+)
+@click.option(
+    "-f",
+    "--farmer-key",
+    help="Farmer public key, specified in hexadecimal format.",
+    type=str,
+)
+@click.option(
+    "-p",
+    "--pool-key",
+    help=(
+        "Pool public key, specified in hexadecimal format."
+        "  Either a pool public key or a pool contract address must be specified."
+    ),
+    type=str,
+)
+@click.option(
+    "-c",
+    "--pool-contract",
+    help=(
+        "Pool contract address, specified in hexadecimal format."
+        "  Address where the pool reward will be sent to."
+        "  Only used if pool public key is not specified."
+    ),
+    type=str,
+)
+@click.option(
+    "-w",
+    "--warm-start",
+    help="Touch all pages of buffer allocations before starting to plot.",
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.option(
+    "-i",
+    "--plot-id",
+    help="Specify a plot id for debugging.",
+    type=str,
+)
+@click.option(
+    "--memo",
+    help="Specify a plot memo for debugging.",
+    type=str,
+)
+@click.option(
+    "--show-memo",
+    help="Output the memo of the next plot the be plotted.",
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.option(
+    "-v",
+    "--verbose",
+    help="Enable verbose output.",
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.option(
+    "-m",
+    "--no-numa",
+    help=(
+        "Disable automatic NUMA aware memory binding."
+        "  If you set this parameter in a NUMA system you will likely get degraded performance."
+    ),
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.option(
+    "--no-cpu-affinity",
+    help=(
+        "Disable assigning automatic thread affinity."
+        "  This is useful when running multiple simultaneous instances of bladebit as you can manually assign thread affinity yourself when launching bladebit."
+    ),
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.argument(
+    "disk_plot",
+)
+@click.option(
+    "--cache",
+    help="Size of cache to reserve for I/O.",
+    type=str,
+)
+@click.argument(
+    "out_dir",
+    # help=(
+    #     "Output directory in which to output the plots." "  This directory must exist."
+    # ),
+    type=click.Path(),
+    default=pathlib.Path("."),
+    # show_default=True,
+)
+@click.option(
+    "-b",
+    "--buckets",
+    help="The number of buckets to use. The default is 256.",
+    type=str,
+)
+@click.option(
+    "--f1-threads",
+    help="Override the thread count for F1 generation.",
+    type=str,
+)
+@click.option(
+    "--fp-threads",
+    help="Override the thread count for forward propogation.",
+    type=str,
+)
+@click.option(
+    "--c-threads",
+    help="Override the thread count for C table processing.",
+    type=str,
+)
+@click.option(
+    "--p2-threads",
+    help="Override the thread count for Phase 2.",
+    type=str,
+)
+@click.option(
+    "--p3-threads",
+    help="Override the thread count for Phase 3.",
+    type=str,
+)
+@click.argument(
+    "ram_plot",
+)
+def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
+    pass
