@@ -225,6 +225,9 @@ class Plotter:
         #if 'ramplot' in arguments:
         #    arguments.remove('ramplot')
 
+        # Pretend I have 512 GB RAM
+        arguments = ['-v', '-n', '1', '-t', '14', '-f', 'abcdefg', '-c', 'xch123456', '--no-numa', 'ramplot', '/plots1']
+
         print(arguments)
         #arguments = list(map(lambda x: x.replace('diskplot', 'ramplot'), arguments))
         #print(arguments)
