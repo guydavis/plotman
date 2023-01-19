@@ -756,7 +756,7 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
 # BladeBit Git on 2023-01-09 -> https://github.com/Chia-Network/bladebit/commit/9fac46aff0476e829d476412de18497a3a2f7ed8
 @commands.register(version=(2, 0, 1))
 #@click.command()
-@click.command(context_settings=dict(ignore_unknown_options=True,))
+@click.command(context_settings=dict(allow_extra_args=True,))
 @click.option(
     "-t",
     "--threads",
