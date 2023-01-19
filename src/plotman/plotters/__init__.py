@@ -3,6 +3,7 @@ import collections
 import functools
 import pathlib
 import re
+import sys
 import traceback
 import typing
 
@@ -296,6 +297,7 @@ def parse_command_line_with_click(
         context = command.make_context(info_name="", args=list(command_arguments))
     except click.ClickException as e:
         traceback.print_exc()
+        sys.exit(-1)  # Don't keep launching multiple plotters if can't parse a commandline
         error = e
         params = {}
     else:
