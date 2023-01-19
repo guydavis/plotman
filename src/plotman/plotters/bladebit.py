@@ -226,6 +226,8 @@ class Plotter:
         #    arguments.remove('ramplot')
 
         print(arguments)
+        arguments = list(map(lambda x: x.replace('diskplot', 'ramplot'), arguments))
+        print(arguments)
 
         # TODO: We could at some point do version detection and pick the
         #       associated command.  For now we'll just use the latest one we have
