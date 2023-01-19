@@ -28,6 +28,7 @@ class Options:
     cthreads: typing.Optional[int] = None
     p2threads: typing.Optional[int] = None
     p3threads: typing.Optional[int] = None
+    ramplot: bool = False
 
 
 def check_configuration(
@@ -217,6 +218,9 @@ class Plotter:
     def parse_command_line(self, command_line: typing.List[str], cwd: str) -> None:
         # drop the bladebit
         arguments = command_line[1:]
+
+        # DEBUG ONLY: Pretend I have 512 GB RAM and could ramplot. :)
+        #arguments = ['-v', '-n', '1', '-t', '14', '-f', 'abcdefg', '-c', 'xch123456', '--no-numa', 'ramplot', '/plots1']
 
         # TODO: We could at some point do version detection and pick the
         #       associated command.  For now we'll just use the latest one we have
@@ -738,7 +742,7 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
 
 # BladeBit Git on 2023-01-09 -> https://github.com/Chia-Network/bladebit/commit/9fac46aff0476e829d476412de18497a3a2f7ed8
 @commands.register(version=(2, 0, 1))
-@click.command()
+@click.command(context_settings=dict(allow_extra_args=True,))
 @click.option(
     "-t",
     "--threads",
@@ -838,22 +842,18 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     type=bool,
     default=False,
 )
-@click.argument(
-    "diskplot",
-)
 @click.option(
     "--cache",
     help="Size of cache to reserve for I/O.",
     type=str,
 )
-@click.argument(
-    "out_dir",
-    # help=(
-    #     "Output directory in which to output the plots." "  This directory must exist."
-    # ),
-    type=click.Path(),
-    default=pathlib.Path("."),
-    # show_default=True,
+@click.option(
+    "--diskplot",
+    "diskplot",
+    help="Create a plot by making use of a disk.",
+    type=str,
+    is_flag=True,
+    default=False,
 )
 @click.option(
     "-b",
@@ -886,8 +886,22 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     help="Override the thread count for Phase 3.",
     type=int,
 )
-@click.argument(
+@click.option(
+    "--ramplot",
     "ramplot",
+    help="Create a plot completely in-ram.",
+    type=str,
+    is_flag=True,
+    default=False,
+)
+@click.argument(
+    "out_dir",
+    # help=(
+    #     "Output directory in which to output the plots." "  This directory must exist."
+    # ),
+    type=click.Path(),
+    default=pathlib.Path("."),
+    # show_default=True,
 )
 def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
     pass
