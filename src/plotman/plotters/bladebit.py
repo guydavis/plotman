@@ -859,8 +859,12 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     help="Size of cache to reserve for I/O.",
     type=str,
 )
-@click.argument(
+@click.option(
     "diskplot",
+    help="Create a plot by making use of a disk.",
+    type=str,
+    is_flag=True
+    default=False,
 )
 @click.option(
     "-b",
@@ -895,6 +899,10 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
 )
 @click.argument(
     "ramplot",
+    help="Create a plot completely in-ram.",
+    type=str,
+    is_flag=True,
+    default=False,
 )
 @click.argument(
     "out_dir",
