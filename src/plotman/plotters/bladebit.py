@@ -219,13 +219,14 @@ class Plotter:
         arguments = command_line[1:]
 
         # Remove the keyword `diskplot` that Click chokes on...
-        if 'diskplot' in arguments:
-            arguments.remove('diskplot')
+        #if 'diskplot' in arguments:
+        #    arguments.remove('diskplot')
         # Remove the keyword `ramplot` that Click chokes on...
         if 'ramplot' in arguments:
-            arguments.remove('ramplot')
+            arguments = list(map(lambda x: x.replace('ramplot', 'diskplot'), arguments))
 
         print(arguments)
+
         # TODO: We could at some point do version detection and pick the
         #       associated command.  For now we'll just use the latest one we have
         #       copied.
