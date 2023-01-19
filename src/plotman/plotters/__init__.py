@@ -296,6 +296,7 @@ def parse_command_line_with_click(
     try:
         context = command.make_context(info_name="", args=list(command_arguments))
     except click.ClickException as e:
+        print("Failed to parse plotter command: {0}".format(arguments))
         traceback.print_exc()
         sys.exit(-1)  # Don't keep launching multiple plotters if can't parse a commandline
         error = e
