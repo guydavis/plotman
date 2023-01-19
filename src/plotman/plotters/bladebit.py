@@ -219,19 +219,8 @@ class Plotter:
         # drop the bladebit
         arguments = command_line[1:]
 
-        # Remove the keyword `diskplot` that Click chokes on...
-        #if 'diskplot' in arguments:
-        #    arguments.remove('diskplot')
-        # Remove the keyword `ramplot` that Click chokes on...
-        #if 'ramplot' in arguments:
-        #    arguments.remove('ramplot')
-
         # Pretend I have 512 GB RAM
         arguments = ['-v', '-n', '1', '-t', '14', '-f', 'abcdefg', '-c', 'xch123456', '--no-numa', 'ramplot', '/plots1']
-
-        print(arguments)
-        #arguments = list(map(lambda x: x.replace('diskplot', 'ramplot'), arguments))
-        #print(arguments)
 
         # TODO: We could at some point do version detection and pick the
         #       associated command.  For now we'll just use the latest one we have
@@ -242,8 +231,6 @@ class Plotter:
             command=command,
             arguments=arguments,
         )
-
-        print(self.parsed_command_line)
 
         for key in ["out_dir"]:
             original: os.PathLike[str] = self.parsed_command_line.parameters.get(key)  # type: ignore[assignment]
@@ -755,7 +742,6 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
 
 # BladeBit Git on 2023-01-09 -> https://github.com/Chia-Network/bladebit/commit/9fac46aff0476e829d476412de18497a3a2f7ed8
 @commands.register(version=(2, 0, 1))
-#@click.command()
 @click.command(context_settings=dict(allow_extra_args=True,))
 @click.option(
     "-t",
@@ -917,5 +903,5 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     default=pathlib.Path("."),
     # show_default=True,
 )
-def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8(out_dir) -> None:
+def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
     pass
