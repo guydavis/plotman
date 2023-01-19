@@ -219,8 +219,8 @@ class Plotter:
         # drop the bladebit
         arguments = command_line[1:]
 
-        # Pretend I have 512 GB RAM
-        arguments = ['-v', '-n', '1', '-t', '14', '-f', 'abcdefg', '-c', 'xch123456', '--no-numa', 'ramplot', '/plots1']
+        # DEBUG ONLY: Pretend I have 512 GB RAM and could ramplot. :)
+        #arguments = ['-v', '-n', '1', '-t', '14', '-f', 'abcdefg', '-c', 'xch123456', '--no-numa', 'ramplot', '/plots1']
 
         # TODO: We could at some point do version detection and pick the
         #       associated command.  For now we'll just use the latest one we have
