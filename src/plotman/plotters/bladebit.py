@@ -845,6 +845,9 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     type=bool,
     default=False,
 )
+@click.argument(
+    "diskplot",
+)
 @click.option(
     "--cache",
     help="Size of cache to reserve for I/O.",
