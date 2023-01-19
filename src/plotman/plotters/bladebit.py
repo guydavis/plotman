@@ -219,11 +219,12 @@ class Plotter:
         arguments = command_line[1:]
 
         # Remove the keyword `diskplot` that Click chokes on...
-        if 'diskplot' in arguments:
-            arguments.remove('diskplot')
+        #if 'diskplot' in arguments:
+        #    arguments.remove('diskplot')
         # Remove the keyword `ramplot` that Click chokes on...
-        if 'ramplot' in arguments:
-            arguments.remove('ramplot')
+        #if 'ramplot' in arguments:
+        #    arguments.remove('ramplot')
+
         print(arguments)
 
         # TODO: We could at some point do version detection and pick the
@@ -235,6 +236,8 @@ class Plotter:
             command=command,
             arguments=arguments,
         )
+
+        print(self.parsed_command_line)
 
         for key in ["out_dir"]:
             original: os.PathLike[str] = self.parsed_command_line.parameters.get(key)  # type: ignore[assignment]
@@ -852,6 +855,9 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     type=str,
 )
 @click.argument(
+    "diskplot",
+)
+@click.argument(
     "out_dir",
     # help=(
     #     "Output directory in which to output the plots." "  This directory must exist."
@@ -890,6 +896,9 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     "--p3-threads",
     help="Override the thread count for Phase 3.",
     type=int,
+)
+@click.argument(
+    "ramplot",
 )
 def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
     pass
