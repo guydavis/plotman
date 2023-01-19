@@ -28,6 +28,7 @@ class Options:
     cthreads: typing.Optional[int] = None
     p2threads: typing.Optional[int] = None
     p3threads: typing.Optional[int] = None
+    ramplot: bool = False
 
 
 def check_configuration(
