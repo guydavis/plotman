@@ -916,5 +916,5 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     default=pathlib.Path("."),
     # show_default=True,
 )
-def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
+def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8(out_dir) -> None:
     pass
