@@ -219,12 +219,11 @@ class Plotter:
         arguments = command_line[1:]
 
         # Remove the keyword `diskplot` that Click chokes on...
-        #if 'diskplot' in arguments:
-        #    arguments.remove('diskplot')
+        if 'diskplot' in arguments:
+            arguments.remove('diskplot')
         # Remove the keyword `ramplot` that Click chokes on...
         if 'ramplot' in arguments:
-            arguments = list(map(lambda x: x.replace('ramplot', 'diskplot'), arguments))
-
+            arguments.remove('ramplot')
         print(arguments)
 
         # TODO: We could at some point do version detection and pick the
@@ -846,9 +845,6 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     is_flag=True,
     type=bool,
     default=False,
-)
-@click.argument(
-    "diskplot",
 )
 @click.option(
     "--cache",
