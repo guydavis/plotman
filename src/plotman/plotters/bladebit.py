@@ -860,6 +860,7 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     type=str,
 )
 @click.option(
+    "--diskplot",
     "diskplot",
     help="Create a plot by making use of a disk.",
     type=str,
@@ -898,6 +899,7 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     type=int,
 )
 @click.option(
+    "--ramplot",
     "ramplot",
     help="Create a plot completely in-ram.",
     type=str,
