@@ -225,7 +225,7 @@ class Plotter:
         if 'ramplot' in arguments:
             arguments.remove('ramplot')
 
-        print(arguments)
+        logging.info(arguments)
 
         # TODO: We could at some point do version detection and pick the
         #       associated command.  For now we'll just use the latest one we have
@@ -894,9 +894,6 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     "--p3-threads",
     help="Override the thread count for Phase 3.",
     type=int,
-)
-@click.argument(
-    "ramplot",
 )
 def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
     pass
