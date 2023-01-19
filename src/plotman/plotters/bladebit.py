@@ -225,8 +225,7 @@ class Plotter:
         if 'ramplot' in arguments:
             arguments.remove('ramplot')
 
-        logging.info(arguments)
-
+        print(arguments)
         # TODO: We could at some point do version detection and pick the
         #       associated command.  For now we'll just use the latest one we have
         #       copied.
