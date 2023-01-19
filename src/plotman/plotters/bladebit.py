@@ -862,15 +862,6 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
 @click.argument(
     "diskplot",
 )
-@click.argument(
-    "out_dir",
-    # help=(
-    #     "Output directory in which to output the plots." "  This directory must exist."
-    # ),
-    type=click.Path(),
-    default=pathlib.Path("."),
-    # show_default=True,
-)
 @click.option(
     "-b",
     "--buckets",
@@ -904,6 +895,15 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
 )
 @click.argument(
     "ramplot",
+)
+@click.argument(
+    "out_dir",
+    # help=(
+    #     "Output directory in which to output the plots." "  This directory must exist."
+    # ),
+    type=click.Path(),
+    default=pathlib.Path("."),
+    # show_default=True,
 )
 def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
     pass
