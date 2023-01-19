@@ -863,7 +863,7 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     "diskplot",
     help="Create a plot by making use of a disk.",
     type=str,
-    is_flag=True
+    is_flag=True,
     default=False,
 )
 @click.option(
