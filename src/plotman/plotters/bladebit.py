@@ -897,7 +897,7 @@ def _cli_a395f44cab55524a757a5cdb30dad4d08ee307f4() -> None:
     help="Override the thread count for Phase 3.",
     type=int,
 )
-@click.argument(
+@click.option(
     "ramplot",
     help="Create a plot completely in-ram.",
     type=str,
