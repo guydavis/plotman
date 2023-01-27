@@ -27,8 +27,16 @@ class Options:
     tmptoggle: bool = False
     waitforcopy: bool = False
     network_port: int = 8444
+    compression: int = 1
+    gpu_plot: bool = False
+    gpu_device: int = 0
+    gpu_directio: bool = False
+    gpu_streams: int = 4
+    gpu_shared_memory: int = None
 
     def chosen_executable(self) -> str:
+        if self.gpu_plot:
+            return "cuda_plot_k{0}".format(self.k)
         if self.k > 32:
             return self.executable_k34
 
@@ -63,32 +71,46 @@ def create_command_line(
 ) -> typing.List[str]:
     args = [
         options.chosen_executable(),
-        "-k",
-        str(options.k),
         "-n",
         str(options.n),
-        "-r",
-        str(options.n_threads),
-        "-u",
-        str(options.n_buckets),
         "-x",
         str(options.network_port),
+        "-C",
+        str(options.compression),
         "-t",
         tmpdir if tmpdir.endswith("/") else (tmpdir + "/"),
         "-d",
         dstdir if dstdir.endswith("/") else (dstdir + "/"),
     ]
+    if options.gpu_plot: # GPU Plotting
+        args.append("-g")
+        args.append(str(options.gpu_device))
+        if options.gpu_directio:
+            args.append("-D")
+        if options.gpu_streams is not None:
+            args.append("-S")
+            args.append(str(options.gpu_streams))
+        if options.gpu_shared_memory is not None:
+            args.append("-M")
+            args.append(str(options.gpu_shared_memory))
+    else: # CPU Plotting
+        args.append("-k")
+        args.append(str(options.k))
+        args.append("-r")
+        args.append(str(options.n_threads))
+        args.append("-u")
+        args.append(str(options.n_buckets))
+        if options.n_buckets3 is not None:
+            args.append("-v")
+            args.append(str(options.n_buckets3))
+        if options.n_rmulti2 is not None:
+            args.append("-K")
+            args.append(str(options.n_rmulti2))
+        if options.tmptoggle:
+            args.append("-G")
     if tmp2dir is not None:
         args.append("-2")
         args.append(tmp2dir if tmp2dir.endswith("/") else (tmp2dir + "/"))
-    if options.n_buckets3 is not None:
-        args.append("-v")
-        args.append(str(options.n_buckets3))
-    if options.n_rmulti2 is not None:
-        args.append("-K")
-        args.append(str(options.n_rmulti2))
-    if options.tmptoggle:
-        args.append("-G")
     if options.waitforcopy:
         args.append("-w")
 
@@ -176,13 +198,19 @@ class Plotter:
         return os.path.basename(command_line[0]).lower() in {
             "chia_plot",
             "chia_plot_k34",
+            "cuda_plot_k26",
+            "cuda_plot_k29",
+            "cuda_plot_k30",
+            "cuda_plot_k31",
+            "cuda_plot_k32",
+            "cuda_plot_k33",
         }
 
     def common_info(self) -> plotman.plotters.CommonInfo:
         return self.info.common()
 
     def parse_command_line(self, command_line: typing.List[str], cwd: str) -> None:
-        # drop the chia_plot or chia_plot_k34
+        # drop the chia_plot or chia_plot_k34 or cuda_plot_k*
         arguments = command_line[1:]
 
         # TODO: We could at some point do chia version detection and pick the
@@ -800,4 +828,169 @@ def _cli_aaa3214d4abbd49bb99c2ec087e27c765424cd65() -> None:
     default=1,
 )
 def _cli_ecec17d25cd547fa4bb64b2eb7455b831c8a2882() -> None:
+    pass
+
+# Madmax Binaries on 2023-01-27 -> https://github.com/madMAx43v3r/mmx-binaries
+@commands.register(version=(4,))
+@click.command()
+@click.option(
+    "-k",
+    "--size",
+    help="K size (default = 32, k <= 34)",
+    type=int,
+    default=32,
+    show_default=True,
+)
+@click.option(
+    "-x",
+    "--port",
+    help="Network port (default = 8444, chives = 9699, mmx = 11337)",
+    type=int,
+    default=8444,
+    show_default=True,
+)
+@click.option(
+    "-C",
+    "--level",
+    help="Compression level (default = 1, min = 1, max = 9)",
+    type=int,
+    default=1,
+    show_default=True,
+)
+@click.option(
+    "-n",
+    "--count",
+    help="Number of plots to create (default = 1, -1 = infinite)",
+    type=int,
+    default=1,
+    show_default=True,
+)
+@click.option(
+    "-r",
+    "--threads",
+    help="Number of threads (default = 4)",
+    type=int,
+    default=4,
+    show_default=True,
+)
+@click.option(
+    "-g",
+    "--device",
+    help="CUDA device (default = 0)",
+    type=int,
+    default=4,
+    show_default=True,
+)
+@click.option(
+    "-D",
+    "--directio",
+    help="Use direct IO (default = false)",
+    type=bool,
+    default=False,
+    show_default=True,
+)
+@click.option(
+    "-S",
+    "--streams",
+    help="Number of parallel streams (default = 4, must be >= 2)",
+    type=bool,
+    default=False,
+    show_default=True,
+)
+@click.option(
+    "-M",
+    "--memory",
+    help="Max shared / pinned memory in GiB (default = unlimited)",
+    type=bool,
+    default=False,
+    show_default=True,
+)
+@click.option(
+    "-u",
+    "--buckets",
+    help="Number of buckets (default = 256)",
+    type=int,
+    default=256,
+    show_default=True,
+)
+@click.option(
+    "-v",
+    "--buckets3",
+    help="Number of buckets for phase 3+4 (default = buckets)",
+    type=int,
+    default=256,
+)
+@click.option(
+    "-t",
+    "--tmpdir",
+    help="Temporary directory, needs ~220 GiB (default = $PWD)",
+    type=click.Path(),
+    default=pathlib.Path("."),
+    show_default=True,
+)
+@click.option(
+    "-2",
+    "--tmpdir2",
+    help="Temporary directory 2, needs ~110 GiB [RAM] (default = <tmpdir>)",
+    type=click.Path(),
+    default=None,
+)
+@click.option(
+    "-d",
+    "--finaldir",
+    help="Final directory (default = <tmpdir>)",
+    type=click.Path(),
+    default=pathlib.Path("."),
+    show_default=True,
+)
+@click.option(
+    "-s",
+    "--stagedir",
+    help="Stage directory (default = <tmpdir>)",
+    type=click.Path(),
+    default=None,
+    show_default=True,
+)
+@click.option(
+    "-w",
+    "--waitforcopy",
+    help="Wait for copy to start next plot",
+    type=bool,
+    default=False,
+    show_default=True,
+)
+@click.option(
+    "-p", "--poolkey", help="Pool Public Key (48 bytes)", type=str, default=None
+)
+@click.option(
+    "-c", "--contract", help="Pool Contract Address (62 chars)", type=str, default=None
+)
+@click.option(
+    "-f", "--farmerkey", help="Farmer Public Key (48 bytes)", type=str, default=None
+)
+@click.option(
+    "-G", "--tmptoggle", help="Alternate tmpdir/tmpdir2", type=str, default=None
+)
+@click.option(
+    "-D",
+    "--directout",
+    help="Create plot directly in finaldir (default = false)",
+    type=bool,
+    default=False,
+)
+@click.option(
+    "-Z",
+    "--unique",
+    help="Make unique plot (default = false)",
+    type=bool,
+    default=False,
+)
+@click.option(
+    "-K",
+    "--rmulti2",
+    help="Thread multiplier for P2 (default = 1)",
+    type=int,
+    default=1,
+)
+def _cli_c3e5c06ba83cbf2ae34c70865a8a20c1a2f1c049() -> None:
     pass
