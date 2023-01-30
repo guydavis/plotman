@@ -60,7 +60,7 @@ def check_configuration(
                 f" option for pools."
             )
         if "--level" in completed_process.stdout:
-            options.compression_support = True
+            options.compression_supported = True
 
 
 def create_command_line(
