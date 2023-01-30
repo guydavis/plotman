@@ -105,6 +105,7 @@ class CommonInfo:
     plot_id: typing.Optional[str] = None
     process_id: typing.Optional[int] = None
     completed: bool = False
+    compression_level: int = 1
 
     # Phase 1 duration
     @property
