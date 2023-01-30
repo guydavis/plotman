@@ -92,6 +92,7 @@ def status_report(
         "plot id",
         "plotter",
         "k",
+        "lvl",
         "tmp",
         "dst",
         "wall",
@@ -126,8 +127,9 @@ def status_report(
                     info = j.plotter.common_info()
                     row = [
                         j.plot_id_prefix(),  # Plot ID
-                        info.type,  # chia or madmax
+                        info.type,  # chia, madmax, or bladebit
                         str(info.plot_size),  # k size
+                        str(info.compression_level),  # compression of plot file
                         abbr_path(info.tmpdir, tmp_prefix),  # Temp directory
                         abbr_path(info.dstdir, dst_prefix),  # Destination directory
                         plot_util.time_format(j.get_time_wall()),  # Time wall
