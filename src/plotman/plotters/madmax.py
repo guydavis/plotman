@@ -28,7 +28,6 @@ class Options:
     waitforcopy: bool = False
     network_port: int = 8444
     compression: int = 1
-    compression_supported: bool = False
     gpu_plot: bool = False
     gpu_device: int = 0
     gpu_directio: bool = False
@@ -59,9 +58,17 @@ def check_configuration(
                 f"found madMAx version does not support the `--contract`"
                 f" option for pools."
             )
-        if "--level" in completed_process.stdout:
-            options.compression_supported = True
 
+def supports_compression(options: Options):
+    completed_process = subprocess.run(
+        args=[options.chosen_executable(), "--help"],
+        capture_output=True,
+        check=True,
+        encoding="utf-8",
+    )
+    if "--level" in completed_process.stdout:
+        return True
+    return False
 
 def create_command_line(
     options: Options,
@@ -114,7 +121,7 @@ def create_command_line(
         args.append(tmp2dir if tmp2dir.endswith("/") else (tmp2dir + "/"))
     if options.waitforcopy:
         args.append("-w")
-    if options.compression_supported: 
+    if supports_compression(options): 
         args.append("-C")
         args.append(str(options.compression))
     if farmer_public_key is not None:
