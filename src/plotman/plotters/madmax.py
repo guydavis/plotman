@@ -183,6 +183,7 @@ class SpecificInfo:
             phase4_duration_raw=self.phase4_duration_raw,
             total_time_raw=self.total_time_raw,
             filename=self.filename,
+            compression_level=self.compression_level,
         )
 
 
