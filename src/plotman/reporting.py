@@ -14,7 +14,7 @@ def abbr_path(path: str, putative_prefix: str) -> str:
     if putative_prefix and path.startswith(putative_prefix):
         return os.path.relpath(path, putative_prefix)
     else:
-        return path
+        return path if path else '-'
 
 
 def phases_str(
