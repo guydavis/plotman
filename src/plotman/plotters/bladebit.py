@@ -909,7 +909,7 @@ def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
     pass
 
 # BladeBit Git on 2023-02-10 -> https://github.com/Chia-Network/bladebit/commit/a85283946c56b5ae1e5b673f62143417db96247b
-@commands.register(version=(2, 0, 1))
+@commands.register(version=(3, 0, 0))
 @click.command(context_settings=dict(allow_extra_args=True,))
 @click.option(
     "-t",
