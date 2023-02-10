@@ -28,14 +28,14 @@ class Options:
     waitforcopy: bool = False
     network_port: int = 8444
     compression: int = 1
-    gpu_plot: bool = False
+    mode: str = "diskplot"
     gpu_device: int = 0
     gpu_directio: bool = False
     gpu_streams: int = 4
     gpu_shared_memory: int = None
 
     def chosen_executable(self) -> str:
-        if self.gpu_plot:
+        if self.mode == 'gpuplot':
             return "cuda_plot_k{0}".format(self.k)
         if self.k > 32:
             return self.executable_k34
@@ -90,7 +90,7 @@ def create_command_line(
         "-d",
         dstdir if dstdir.endswith("/") else (dstdir + "/"),
     ]
-    if options.gpu_plot: # GPU Plotting
+    if options.mode == 'gpuplot': # GPU Plotting
         args.append("-g")
         args.append(str(options.gpu_device))
         if options.gpu_directio:

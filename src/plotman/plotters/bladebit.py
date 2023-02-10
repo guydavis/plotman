@@ -20,7 +20,7 @@ class Options:
     executable: str = "bladebit"
     threads: typing.Optional[int] = None
     no_numa: bool = False
-    diskplot: bool = False
+    mode: str = "ramplot"
     diskplot_cache: typing.Optional[str] = None
     diskplot_buckets: typing.Optional[int] = None
     f1threads: typing.Optional[int] = None
@@ -29,8 +29,7 @@ class Options:
     p2threads: typing.Optional[int] = None
     p3threads: typing.Optional[int] = None
     compression: int = 1
-    ramplot: bool = False
-    gpuplot: bool = False
+    diskplot: bool = False  # Deprecated
 
 def check_configuration(
     options: Options, pool_contract_address: typing.Optional[str]
@@ -101,50 +100,56 @@ def create_command_line(
     if options.no_numa:
         args.append("--no-numa")
 
-    if options.diskplot:
+    if options.mode == 'diskplot':
         args.append("diskplot")
-    elif options.gpuplot:
+    elif options.mode == 'gpuplot':
         args.append("cudaplot")
-    else: # Default was originally and remains RAM-only
-        args.append("ramplot")
+    elif options.mode == 'ramplot':
+        if options.diskplot:
+            print("Found deprecated 'diskplot: true' option.  Please use 'mode: diskplot' instead.")
+            args.append("diskplot")
+        else:
+            args.append("ramplot")  # Default for bladebit was always in-memory only
+    else:
+        raise Exception('Unknown mode configured: {0}'.format(options.mode))
 
-    if options.diskplot and options.diskplot_cache:
+    if options.mode == 'diskplot'and options.diskplot_cache:
         args.append("--cache")
         args.append(options.diskplot_cache)
     
-    if options.diskplot and options.diskplot_buckets:
+    if options.mode == 'diskplot' and options.diskplot_buckets:
         args.append("--buckets")
         args.append(str(options.diskplot_buckets))
 
-    if options.diskplot and options.f1threads:
+    if options.mode == 'diskplot' and options.f1threads:
         args.append("--f1-threads")
         args.append(str(options.f1threads))
 
-    if options.diskplot and options.fpthreads:
+    if options.mode == 'diskplot' and options.fpthreads:
         args.append("--fp-threads")
         args.append(str(options.fpthreads))
 
-    if options.diskplot and options.cthreads:
+    if options.mode == 'diskplot' and options.cthreads:
         args.append("--c-threads")
         args.append(str(options.cthreads))
 
-    if options.diskplot and options.p2threads:
+    if options.mode == 'diskplot' and options.p2threads:
         args.append("--p2-threads")
         args.append(str(options.p2threads))
 
-    if options.diskplot and options.p3threads:
+    if options.mode == 'diskplot' and options.p3threads:
         args.append("--p3-threads")
         args.append(str(options.p3threads))
 
-    if options.diskplot and tmpdir is not None:
+    if options.mode == 'diskplot' and tmpdir is not None:
         args.append("-t1")
         args.append(tmpdir)
     
-    if options.diskplot and tmp2dir is not None:
+    if options.mode == 'diskplot' and tmp2dir is not None:
         args.append("-t2")
         args.append(tmp2dir)
     
-    if options.gpuplot:
+    if options.mode == 'gpuplot':
         args.append("-C") # TODO Determine actual parameter as help broken in bladebit still...
         args.append(str(options.compression))
 
