@@ -28,6 +28,7 @@ class Options:
     cthreads: typing.Optional[int] = None
     p2threads: typing.Optional[int] = None
     p3threads: typing.Optional[int] = None
+    compression: int = 1
     ramplot: bool = False
     gpuplot: bool = False
 
@@ -142,6 +143,10 @@ def create_command_line(
     if options.diskplot and tmp2dir is not None:
         args.append("-t2")
         args.append(tmp2dir)
+    
+    if options.gpuplot:
+        args.append("-C") # TODO Determine actual parameter as help broken in bladebit still...
+        args.append(str(options.compression))
 
     args.append(dstdir)
 
@@ -1053,6 +1058,14 @@ def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
     "--p3-threads",
     help="Override the thread count for Phase 3.",
     type=int,
+)
+@click.option(
+    "-C",
+    "--level",
+    help="Compression level (default = 1, min = 1, max = 9)",
+    type=int,
+    default=1,
+    show_default=True,
 )
 @click.option(
     "--ramplot",
