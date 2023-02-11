@@ -150,7 +150,7 @@ def create_command_line(
         args.append(tmp2dir)
     
     if options.mode == 'gpuplot':
-        args.append("-C") # TODO Determine actual parameter as help broken in bladebit still...
+        args.append("--compress")
         args.append(str(options.compression))
 
     args.append(dstdir)
