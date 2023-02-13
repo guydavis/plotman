@@ -230,6 +230,9 @@ class Plotter:
         #       copied.
         command = commands.latest_command()
 
+        # DEBUG ONLY: Pretend I have GPU required for gpuplot
+        #arguments =  ['-n', '1', '-x', '8444', '-t', '/plotting/', '-d', '/plots7/', '-g', '0', '-S', '4', '-2', '/plotting2/', '-C', '7', '-f', 'redacted', '-c', 'redacted']
+
         self.parsed_command_line = plotman.plotters.parse_command_line_with_click(
             command=command,
             arguments=arguments,
@@ -911,7 +914,7 @@ def _cli_ecec17d25cd547fa4bb64b2eb7455b831c8a2882() -> None:
     "-S",
     "--streams",
     help="Number of parallel streams (default = 4, must be >= 2)",
-    type=bool,
+    type=int,
     default=False,
     show_default=True,
 )
