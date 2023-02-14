@@ -30,6 +30,7 @@ class Options:
     compression: int = 1
     mode: str = "diskplot"
     gpu_device: int = 0
+    gpu_ndevices: int = 1
     gpu_directio: bool = False
     gpu_streams: int = 4
     gpu_shared_memory: int = None
@@ -93,6 +94,8 @@ def create_command_line(
     if options.mode == 'gpuplot': # GPU Plotting
         args.append("-g")
         args.append(str(options.gpu_device))
+        args.append("-r")
+        args.append(str(options.gpu_ndevices))
         if options.gpu_directio:
             args.append("-D")
         if options.gpu_streams is not None:
