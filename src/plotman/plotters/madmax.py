@@ -410,9 +410,9 @@ def plot_name_line(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo
     # Plot Name: plot-mmx-k30-2022-01-03-19-44-06982c6179c6242979b68d81950577017d4594f59ec0e6859e83c7f9141cbc35
     # Plot Name: plot-mmx-k30-c1-2023-01-30-13-56-811bf9938c55f358c3c89c5f1eb3799e7a98181dac074d8802a8971f9108d969
     try:
-        compression_lvl = match.group("lvl")
+        compression_lvl = int(match.group("lvl"))
     except:
-        compression_lvl = 1  
+        compression_lvl = 0  
     return attr.evolve(
         info,
         plot_size=int(match.group("size")),
