@@ -28,14 +28,15 @@ class Options:
     waitforcopy: bool = False
     network_port: int = 8444
     compression: int = 1
-    gpu_plot: bool = False
+    mode: str = "diskplot"
     gpu_device: int = 0
+    gpu_ndevices: int = 1
     gpu_directio: bool = False
     gpu_streams: int = 4
     gpu_shared_memory: int = None
 
     def chosen_executable(self) -> str:
-        if self.gpu_plot:
+        if self.mode == 'gpuplot':
             return "cuda_plot_k{0}".format(self.k)
         if self.k > 32:
             return self.executable_k34
@@ -74,6 +75,7 @@ def create_command_line(
     options: Options,
     tmpdir: str,
     tmp2dir: typing.Optional[str],
+    tmp3dir: typing.Optional[str],
     dstdir: str,
     farmer_public_key: typing.Optional[str],
     pool_public_key: typing.Optional[str],
@@ -90,9 +92,11 @@ def create_command_line(
         "-d",
         dstdir if dstdir.endswith("/") else (dstdir + "/"),
     ]
-    if options.gpu_plot: # GPU Plotting
+    if options.mode == 'gpuplot': # GPU Plotting
         args.append("-g")
         args.append(str(options.gpu_device))
+        args.append("-r")
+        args.append(str(options.gpu_ndevices))
         if options.gpu_directio:
             args.append("-D")
         if options.gpu_streams is not None:
@@ -119,6 +123,9 @@ def create_command_line(
     if tmp2dir is not None:
         args.append("-2")
         args.append(tmp2dir if tmp2dir.endswith("/") else (tmp2dir + "/"))
+    if tmp3dir is not None:
+        args.append("-3")
+        args.append(tmp3dir if tmp3dir.endswith("/") else (tmp3dir + "/"))
     if options.waitforcopy:
         args.append("-w")
     if supports_compression(options): 
@@ -229,6 +236,9 @@ class Plotter:
         #       associated command.  For now we'll just use the latest one we have
         #       copied.
         command = commands.latest_command()
+
+        # DEBUG ONLY: Pretend I have GPU required for gpuplot
+        #arguments =  ['-n', '1', '-x', '8444', '-t', '/plotting/', '-d', '/plots7/', '-g', '0', '-S', '4', '-2', '/plotting2/', '-C', '7', '-f', 'redacted', '-c', 'redacted']
 
         self.parsed_command_line = plotman.plotters.parse_command_line_with_click(
             command=command,
@@ -407,9 +417,9 @@ def plot_name_line(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo
     # Plot Name: plot-mmx-k30-2022-01-03-19-44-06982c6179c6242979b68d81950577017d4594f59ec0e6859e83c7f9141cbc35
     # Plot Name: plot-mmx-k30-c1-2023-01-30-13-56-811bf9938c55f358c3c89c5f1eb3799e7a98181dac074d8802a8971f9108d969
     try:
-        compression_lvl = match.group("lvl")
+        compression_lvl = int(match.group("lvl"))
     except:
-        compression_lvl = 1  
+        compression_lvl = 0  
     return attr.evolve(
         info,
         plot_size=int(match.group("size")),
@@ -911,7 +921,7 @@ def _cli_ecec17d25cd547fa4bb64b2eb7455b831c8a2882() -> None:
     "-S",
     "--streams",
     help="Number of parallel streams (default = 4, must be >= 2)",
-    type=bool,
+    type=int,
     default=False,
     show_default=True,
 )
