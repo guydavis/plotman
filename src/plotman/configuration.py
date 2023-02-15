@@ -371,6 +371,7 @@ class Directories:
     tmp: List[str]
     dst: Optional[List[str]] = None
     tmp2: Optional[str] = None
+    tmp3: Optional[str] = None
 
     def dst_is_tmp(self) -> bool:
         return self.dst is None and self.tmp2 is None

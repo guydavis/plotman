@@ -209,6 +209,7 @@ def maybe_start_new_plot(
                     options=plotting_cfg.madmax,
                     tmpdir=tmpdir,
                     tmp2dir=dir_cfg.tmp2,
+                    tmp3dir=dir_cfg.tmp3,
                     dstdir=dstdir,
                     farmer_public_key=plotting_cfg.farmer_pk,
                     pool_public_key=plotting_cfg.pool_pk,

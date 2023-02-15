@@ -75,6 +75,7 @@ def create_command_line(
     options: Options,
     tmpdir: str,
     tmp2dir: typing.Optional[str],
+    tmp3dir: typing.Optional[str],
     dstdir: str,
     farmer_public_key: typing.Optional[str],
     pool_public_key: typing.Optional[str],
@@ -122,6 +123,9 @@ def create_command_line(
     if tmp2dir is not None:
         args.append("-2")
         args.append(tmp2dir if tmp2dir.endswith("/") else (tmp2dir + "/"))
+    if tmp3dir is not None:
+        args.append("-3")
+        args.append(tmp3dir if tmp3dir.endswith("/") else (tmp3dir + "/"))
     if options.waitforcopy:
         args.append("-w")
     if supports_compression(options): 
