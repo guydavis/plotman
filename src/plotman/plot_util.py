@@ -2,6 +2,7 @@ import math
 import os
 import re
 import shutil
+import time
 import typing
 
 from plotman import chiapos
@@ -9,13 +10,15 @@ import plotman.job
 
 GB = 1_000_000_000
 
+# Skip transferring plots with a modification time in the last 10 seconds when listing plots
+MINIMUM_SECONDS_SINCE_LAST_MODIFICATION = 10
 
 def df_b(d: str) -> int:
     "Return free space for directory (in bytes)"
     usage = shutil.disk_usage(d)
     return usage.free
 
-
+# Deprecated now that compressed plots are here...
 def get_plotsize(k: int) -> int:
     return (int)(_get_plotsize_scaler(k) * k * pow(2, k))
 
@@ -63,13 +66,12 @@ def list_plots(d: str) -> typing.List[str]:
     "List completed plots in a directory (not recursive)"
     plots = []
     for plot in os.listdir(d):
-        matches = re.search(r"^plot(?:-mmx)?-k(\d*)-.*plot$", plot)
+        matches = re.search(r"^plot-.*plot$", plot)
         if matches is not None:
             grps = matches.groups()
-            plot_k = int(grps[0])
             plot = os.path.join(d, plot)
             try:
-                if os.stat(plot).st_size > (0.95 * get_plotsize(plot_k)):
+                if time.time()- os.stat(plot).st_mtime > MINIMUM_SECONDS_SINCE_LAST_MODIFICATION:
                     plots.append(plot)
             except FileNotFoundError:
                 continue
