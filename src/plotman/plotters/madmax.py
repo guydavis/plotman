@@ -964,6 +964,13 @@ def _cli_ecec17d25cd547fa4bb64b2eb7455b831c8a2882() -> None:
     default=None,
 )
 @click.option(
+    "-3",
+    "--tmpdir3",
+    help="Temporary directory 3 for 1/4 hybrid mode (default =@RAM)",
+    type=click.Path(),
+    default=None,
+)
+@click.option(
     "-d",
     "--finaldir",
     help="Final directory (default = <tmpdir>)",
