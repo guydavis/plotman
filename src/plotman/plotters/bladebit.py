@@ -31,11 +31,16 @@ class Options:
     compression: int = 1
     diskplot: bool = False  # Deprecated
 
+    def chosen_executable(self) -> str:
+        if self.mode == 'gpuplot':
+            return "bladebit_cuda"
+        return self.executable
+
 def check_configuration(
     options: Options, pool_contract_address: typing.Optional[str]
 ) -> None:
     completed_process = subprocess.run(
-        args=[options.executable, "--version"],
+        args=[options.chosen_executable(), "--version"],
         capture_output=True,
         check=True,
         encoding="utf-8",
@@ -50,7 +55,7 @@ def check_configuration(
 
     if pool_contract_address is not None:
         completed_process = subprocess.run(
-            args=[options.executable, "--help"],
+            args=[options.chosen_executable(), "--help"],
             capture_output=True,
             check=True,
             encoding="utf-8",
@@ -77,7 +82,7 @@ def create_command_line(
     pool_contract_address: typing.Optional[str],
 ) -> typing.List[str]:
     args = [
-        options.executable,
+        options.chosen_executable(),
         "-v",
         "-n",
         "1",
@@ -222,13 +227,16 @@ class Plotter:
         if len(command_line) == 0:
             return False
 
-        return "bladebit" == os.path.basename(command_line[0]).lower()
+        return os.path.basename(command_line[0]).lower() in {
+            "bladebit",
+            "bladebit_cuda",
+        }
 
     def common_info(self) -> plotman.plotters.CommonInfo:
         return self.info.common()
 
     def parse_command_line(self, command_line: typing.List[str], cwd: str) -> None:
-        # drop the bladebit
+        # drop the bladebit or bladebit_cuda
         arguments = command_line[1:]
 
         # DEBUG ONLY: Pretend I have 512 GB RAM and could ramplot. :)
