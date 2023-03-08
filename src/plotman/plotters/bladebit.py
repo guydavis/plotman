@@ -1074,7 +1074,7 @@ def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
 )
 @click.option(
     "-C",
-    "--level",
+    "--compress",
     help="Compression level (default = 1, min = 1, max = 9)",
     type=int,
     default=1,
