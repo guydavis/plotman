@@ -28,7 +28,7 @@ class Options:
     cthreads: typing.Optional[int] = None
     p2threads: typing.Optional[int] = None
     p3threads: typing.Optional[int] = None
-    compression: int = 1
+    compression: int = 0
     diskplot: bool = False  # Deprecated
 
     def chosen_executable(self) -> str:
@@ -105,6 +105,9 @@ def create_command_line(
     if options.no_numa:
         args.append("--no-numa")
 
+    args.append("--compress")
+    args.append(str(options.compression))
+
     if options.mode == 'diskplot':
         args.append("diskplot")
     elif options.mode == 'gpuplot':
@@ -153,10 +156,6 @@ def create_command_line(
     if options.mode == 'diskplot' and tmp2dir is not None:
         args.append("-t2")
         args.append(tmp2dir)
-    
-    if options.mode == 'gpuplot':
-        args.append("--compress")
-        args.append(str(options.compression))
 
     args.append(dstdir)
 
