@@ -18,6 +18,8 @@ import plotman.plotters
 @attr.frozen
 class Options:
     executable: str = "bladebit"
+    n: int = 1
+    k: int = 32 # TODO Watch for BB to support k > 32 eventually...
     threads: typing.Optional[int] = None
     no_numa: bool = False
     mode: str = "ramplot"
@@ -85,7 +87,7 @@ def create_command_line(
         options.chosen_executable(),
         "-v",
         "-n",
-        "1",
+        str(options.n),
     ]
 
     if options.threads is not None:
