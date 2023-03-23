@@ -18,6 +18,8 @@ import plotman.plotters
 @attr.frozen
 class Options:
     executable: str = "bladebit"
+    n: int = 1
+    k: int = 32 # TODO Watch for BB to support k > 32 eventually...
     threads: typing.Optional[int] = None
     no_numa: bool = False
     mode: str = "ramplot"
@@ -28,14 +30,19 @@ class Options:
     cthreads: typing.Optional[int] = None
     p2threads: typing.Optional[int] = None
     p3threads: typing.Optional[int] = None
-    compression: int = 1
+    compression: int = 0
     diskplot: bool = False  # Deprecated
+
+    def chosen_executable(self) -> str:
+        if self.mode == 'gpuplot':
+            return "bladebit_cuda"
+        return self.executable
 
 def check_configuration(
     options: Options, pool_contract_address: typing.Optional[str]
 ) -> None:
     completed_process = subprocess.run(
-        args=[options.executable, "--version"],
+        args=[options.chosen_executable(), "--version"],
         capture_output=True,
         check=True,
         encoding="utf-8",
@@ -50,7 +57,7 @@ def check_configuration(
 
     if pool_contract_address is not None:
         completed_process = subprocess.run(
-            args=[options.executable, "--help"],
+            args=[options.chosen_executable(), "--help"],
             capture_output=True,
             check=True,
             encoding="utf-8",
@@ -77,10 +84,10 @@ def create_command_line(
     pool_contract_address: typing.Optional[str],
 ) -> typing.List[str]:
     args = [
-        options.executable,
+        options.chosen_executable(),
         "-v",
         "-n",
-        "1",
+        str(options.n),
     ]
 
     if options.threads is not None:
@@ -99,6 +106,9 @@ def create_command_line(
 
     if options.no_numa:
         args.append("--no-numa")
+
+    args.append("--compress")
+    args.append(str(options.compression))
 
     if options.mode == 'diskplot':
         args.append("diskplot")
@@ -148,10 +158,6 @@ def create_command_line(
     if options.mode == 'diskplot' and tmp2dir is not None:
         args.append("-t2")
         args.append(tmp2dir)
-    
-    if options.mode == 'gpuplot':
-        args.append("--compress")
-        args.append(str(options.compression))
 
     args.append(dstdir)
 
@@ -222,13 +228,16 @@ class Plotter:
         if len(command_line) == 0:
             return False
 
-        return "bladebit" == os.path.basename(command_line[0]).lower()
+        return os.path.basename(command_line[0]).lower() in {
+            "bladebit",
+            "bladebit_cuda",
+        }
 
     def common_info(self) -> plotman.plotters.CommonInfo:
         return self.info.common()
 
     def parse_command_line(self, command_line: typing.List[str], cwd: str) -> None:
-        # drop the bladebit
+        # drop the bladebit or bladebit_cuda
         arguments = command_line[1:]
 
         # DEBUG ONLY: Pretend I have 512 GB RAM and could ramplot. :)
@@ -1066,7 +1075,7 @@ def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
 )
 @click.option(
     "-C",
-    "--level",
+    "--compress",
     help="Compression level (default = 1, min = 1, max = 9)",
     type=int,
     default=1,
