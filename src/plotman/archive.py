@@ -19,6 +19,7 @@ import texttable as tt
 from plotman import configuration, job, manager, plot_util
 
 
+root_logger = logging.getLogger()
 disk_space_logger = logging.getLogger("disk_space")
 
 _WINDOWS = sys.platform == "win32"
@@ -40,72 +41,62 @@ def spawn_archive_process(
 
     # Look for running archive jobs.  Be robust to finding more than one
     # even though the scheduler should only run one at a time.
-    arch_jobs: typing.List[typing.Union[int, str]] = [
-        *get_running_archive_jobs(arch_cfg)
-    ]
+    arch_jobs: typing.Dict[str, typing.Dict] = get_running_archive_jobs(arch_cfg)
+    if len(arch_jobs):
+        root_logger.info("Found {0} already running transfers...".format(len(arch_jobs)))
+    (should_start, status_or_cmd, archive_log_messages) = archive(
+        dir_cfg, arch_cfg, all_jobs, arch_jobs
+    )
+    log_messages.extend(archive_log_messages)
+    if not should_start:
+        archiving_status = status_or_cmd
+    else:
+        args: typing.Dict[str, object] = status_or_cmd  # type: ignore[assignment]
 
-    if not arch_jobs:
-        (should_start, status_or_cmd, archive_log_messages) = archive(
-            dir_cfg, arch_cfg, all_jobs
-        )
-        log_messages.extend(archive_log_messages)
-        if not should_start:
-            archiving_status = status_or_cmd
-        else:
-            args: typing.Dict[str, object] = status_or_cmd  # type: ignore[assignment]
-
-            log_file_path = log_cfg.create_transfer_log_path(time=pendulum.now())
-            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        log_file_path = log_cfg.create_transfer_log_path(time=pendulum.now())
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        log_messages.append("{0} Starting archive of {1} to {2}. See {3}".format(
+            timestamp, args['env']['source'],args['env']['destination'], log_file_path))
+        try:
+            open_log_file = open(log_file_path, "x")
+        except FileExistsError:
             log_messages.append(
-                f'{timestamp} Starting archive: {args["args"]} ; logging to {log_file_path}'
+                f"Archiving log file already exists, skipping attempt to start a"
+                f" new archive transfer: {log_file_path!r}"
             )
-            # TODO: CAMPid 09840103109429840981397487498131
-            try:
-                open_log_file = open(log_file_path, "x")
-            except FileExistsError:
-                log_messages.append(
-                    f"Archiving log file already exists, skipping attempt to start a"
-                    f" new archive transfer: {log_file_path!r}"
-                )
-                return (False, log_messages)
-            except FileNotFoundError as e:
-                message = (
-                    f"Unable to open log file.  Verify that the directory exists"
-                    f" and has proper write permissions: {log_file_path!r}"
-                )
-                raise Exception(message) from e
+            return (False, log_messages)
+        except FileNotFoundError as e:
+            message = (
+                f"Unable to open log file.  Verify that the directory exists"
+                f" and has proper write permissions: {log_file_path!r}"
+            )
+            raise Exception(message) from e
 
-            # Preferably, do not add any code between the try block above
-            # and the with block below.  IOW, this space intentionally left
-            # blank...  As is, this provides a good chance that our handle
-            # of the log file will get closed explicitly while still
-            # allowing handling of just the log file opening error.
+        # Preferably, do not add any code between the try block above
+        # and the with block below.  IOW, this space intentionally left
+        # blank...  As is, this provides a good chance that our handle
+        # of the log file will get closed explicitly while still
+        # allowing handling of just the log file opening error.
 
-            if sys.platform == "win32":
-                creationflags = subprocess.CREATE_NO_WINDOW
-            else:
-                creationflags = 0
+        if sys.platform == "win32":
+            creationflags = subprocess.CREATE_NO_WINDOW
+        else:
+            creationflags = 0
 
-            with open_log_file:
-                # start_new_sessions to make the job independent of this controlling tty.
-                p = subprocess.Popen(  # type: ignore[call-overload]
-                    **args,
-                    shell=True,
-                    stdout=open_log_file,
-                    stderr=subprocess.STDOUT,
-                    start_new_session=True,
-                    creationflags=creationflags,
-                )
-            # At least for now it seems that even if we get a new running
-            # archive jobs list it doesn't contain the new rsync process.
-            # My guess is that this is because the bash in the middle due to
-            # shell=True is still starting up and really hasn't launched the
-            # new rsync process yet.  So, just put a placeholder here.  It
-            # will get filled on the next cycle.
-            arch_jobs.append("<pending>")
+        with open_log_file:
+            # start_new_sessions to make the job independent of this controlling tty.
+            p = subprocess.Popen(  # type: ignore[call-overload]
+                **args,
+                shell=True,
+                stdout=open_log_file,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+                creationflags=creationflags,
+            )
+        time.sleep(3) # Wait for rsync to get running or fail
 
     if archiving_status is None:
-        archiving_status = "pid: " + ", ".join(map(str, arch_jobs))
+        archiving_status = "Now {0} running transfers...".format(len(arch_jobs)+1)
 
     return archiving_status, log_messages
 
@@ -197,22 +188,27 @@ def get_archdir_freebytes(
 
 
 # TODO: maybe consolidate with similar code in job.py?
-def get_running_archive_jobs(arch_cfg: configuration.Archiving) -> typing.List[int]:
+def get_running_archive_jobs(arch_cfg: configuration.Archiving) -> typing.Dict[str, typing.Dict]:
     """Look for running rsync jobs that seem to match the pattern we use for archiving
     them.  Return a list of PIDs of matching jobs."""
-    jobs = []
+    jobs = {}
     target = arch_cfg.target_definition()
     variables = {**os.environ, **arch_cfg.environment()}
-    dest = target.transfer_process_argument_prefix.format(**variables)
     proc_name = target.transfer_process_name.format(**variables)
     for proc in psutil.process_iter():
         with contextlib.suppress(psutil.NoSuchProcess):
             with proc.oneshot():
-                if proc.name() == proc_name:
+                if proc.name() == proc_name: # rsync
                     args = proc.cmdline()
+                    #root_logger.info(args)
                     for arg in args:
-                        if arg.startswith(dest):
-                            jobs.append(proc.pid)
+                        if arg.endswith(".plot"):
+                            source = args[-2] # 2nd last arg is the source file
+                            dest = args[-1] # Last arg is the destination
+                            #root_logger.info('Adding current job source: {0}'.format(source))
+                            jobs[source] = { 'pid': proc.pid, 'dest': dest }
+    if len(jobs):
+        root_logger.info("Currenly running transfers: {0}".format(jobs))
     return jobs
 
 
@@ -220,6 +216,7 @@ def archive(
     dir_cfg: configuration.Directories,
     arch_cfg: configuration.Archiving,
     all_jobs: typing.List[job.Job],
+    arch_jobs: typing.Dict[str, typing.Dict]
 ) -> typing.Tuple[
     bool, typing.Optional[typing.Union[typing.Dict[str, object], str]], typing.List[str]
 ]:
@@ -237,17 +234,18 @@ def archive(
     dst_dir = dir_cfg.get_dst_directories()
     for d in dst_dir:
         ph = dir2ph.get(d, job.Phase(0, 0))
-        dir_plots = plot_util.list_plots(d)
+        dir_plots = plot_util.list_plots(d)  # All plots that could be transferred
+        candidate_plots = [x for x in dir_plots if x not in arch_jobs.keys()]  # All not yet being transferred
         gb_free = plot_util.df_b(d) / plot_util.GB
-        n_plots = len(dir_plots)
+        n_plots = len(candidate_plots)
         priority = compute_priority(ph, gb_free, n_plots)
-        if priority >= best_priority and dir_plots:
+        if priority >= best_priority and candidate_plots:
             best_priority = priority
-            chosen_plot = dir_plots[0]
+            chosen_plot = candidate_plots[0]
 
     if not chosen_plot:
-        return (False, "No plots found", log_messages)
-
+        return (False, "No candidate plots found to transfer.", log_messages)
+    
     # TODO: sanity check that archive machine is available
     # TODO: filter drives mounted RO
 
@@ -264,21 +262,44 @@ def archive(
     # 10MB is big enough to outsize filesystem block sizes hopefully, but small
     # enough to make this a pretty tight corner for people to get stuck in.
     free_space_margin = 10_000_000
-    available = [
-        (d, space)
-        for (d, space) in archdir_freebytes.items()
-        if space > (chosen_plot_size + free_space_margin)
-    ]
+    currently_used_dests = []
+    for source in arch_jobs:
+        currently_used_dests.append(os.path.basename(os.path.normpath(arch_jobs[source]['dest'])))
+    root_logger.info("Currently used destinations {0}".format(currently_used_dests))
+    root_logger.info("All available destinations {0}".format(archdir_freebytes.items()))
+    available = []
+    for (d, space) in archdir_freebytes.items():
+        if space > (chosen_plot_size + free_space_margin):
+            candidate_dest = os.path.basename(os.path.normpath('{0}/'.format(d)))
+            dest_is_currently_used = False
+            for currently_used_dest in currently_used_dests:
+                root_logger.info("Does used dest '{0}' match candidate dest '{1}'?".format(currently_used_dest, candidate_dest))
+                if currently_used_dest == candidate_dest:
+                    dest_is_currently_used = True
+            if not dest_is_currently_used:
+                root_logger.info("Keeping {0} as not currently used.".format(d))
+                available.append((d,space))
+            else:
+                root_logger.info("Dropping {0} as currently used.".format(d))
+                pass
+    root_logger.info("Remaining available targets {0}".format(available))
     if len(available) > 0:
         index = arch_cfg.index % len(available)
         (archdir, freespace) = sorted(available)[index]
 
     if not archdir:
-        return (
-            False,
-            "No archive directories found with enough free space",
-            log_messages,
-        )
+        if len(arch_jobs):
+            return (
+                False,
+                "No available archive directories without an active transfer already.",
+                log_messages,
+            )
+        else:
+            return (
+                False,
+                "No available archive directories found with enough free space.",
+                log_messages,
+            )
 
     env = arch_cfg.environment(
         source=chosen_plot,
