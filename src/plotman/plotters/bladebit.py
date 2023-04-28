@@ -186,6 +186,7 @@ class SpecificInfo:
     # copy_time_raw: float = 0
     filename: str = ""
     plot_name: str = ""
+    compression_level: int = 1
 
     def common(self) -> plotman.plotters.CommonInfo:
         return plotman.plotters.CommonInfo(
@@ -205,6 +206,7 @@ class SpecificInfo:
             phase4_duration_raw=self.phase4_duration_raw,
             total_time_raw=self.total_time_raw,
             filename=self.filename,
+            compression_level=self.compression_level,
         )
 
 
@@ -398,10 +400,14 @@ def tmp2_dir(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
     return attr.evolve(info, tmp2_dir=match.group(1))
 
 @handlers.register(
-    expression=r"^Plot .*/(?P<filename>(?P<name>plot-k(?P<size>\d+)-(?P<year>\d+)-(?P<month>\d+)-(?P<day>\d+)-(?P<hour>\d+)-(?P<minute>\d+)-(?P<plot_id>\w+)).plot) .*"
+    expression=r"^Plot .*/(?P<filename>(?P<name>plot-k(?P<size>\d+)(-c(?P<lvl>\d))?-(?P<year>\d+)-(?P<month>\d+)-(?P<day>\d+)-(?P<hour>\d+)-(?P<minute>\d+)-(?P<plot_id>\w+)).plot) .*"
 )
 def plot_name_line(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
     # Plot /mnt/tmp/01/manual-transfer/plot-k32-2021-08-29-22-22-1fc7b57baae24da78e3bea44d58ab51f162a3ed4d242bab2fbcc24f6577d88b3.plot finished writing to disk:
+    try:
+        compression_lvl = int(match.group("lvl"))
+    except:
+        compression_lvl = 0  
     return attr.evolve(
         info,
         plot_size=int(match.group("size")),
@@ -416,6 +422,7 @@ def plot_name_line(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo
         ),
         filename=match.group("filename"),
         plot_id=match.group("plot_id"),
+        compression_level = compression_lvl,
     )
 
 
