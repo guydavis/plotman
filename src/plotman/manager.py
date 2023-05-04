@@ -22,6 +22,8 @@ import plotman.plotters.chianetwork
 import plotman.plotters.madmax
 
 
+root_logger = logging.getLogger()
+
 # Constants
 MIN = 60  # Seconds
 HR = 3600  # Seconds
@@ -116,7 +118,14 @@ def maybe_start_new_plot(
     log_cfg: plotman.configuration.Logging,
 ) -> typing.Tuple[bool, str]:
     jobs = job.Job.get_running_jobs(log_cfg.plots)
-
+    if plotting_cfg.type == "bladebit":
+        ksize = plotting_cfg.bladebit.k
+    elif plotting_cfg.type == "madmax":
+        ksize = plotting_cfg.madmax.k
+    elif plotting_cfg.type == "chia":
+        ksize = plotting_cfg.chia.k
+    else:
+        ksize = 32
     wait_reason = None  # If we don't start a job this iteration, this says why.
 
     youngest_job_age = (
@@ -140,16 +149,21 @@ def maybe_start_new_plot(
             for (d, phases) in tmp_to_all_phases
             if phases_permit_new_job(phases, d, sched_cfg, dir_cfg)
         ]
+        eligible_and_freespace = []
+        for (d, phases) in eligible:
+            if plot_util.df_b(d) >= plot_util.get_plotsize(ksize):
+                eligible_and_freespace.append((d,phases))
+            else:
+                root_logger.info("Currently inadequate space ({0}) for new plot at tmp path: {1} Will consider it for next time.".format( 
+                    plot_util.human_format(plot_util.df_b(d), 0), d))
+
         rankable = [
             (d, phases[0]) if phases else (d, job.Phase(known=False))
-            for (d, phases) in eligible
+            for (d, phases) in eligible_and_freespace
         ]
 
-        if not eligible:
-            wait_reason = "no eligible tempdirs (%ds/%ds)" % (
-                youngest_job_age,
-                global_stagger,
-            )
+        if not eligible_and_freespace:
+            wait_reason = "Found no eligible tempdirs with free space"
         else:
             # Plot to oldest tmpdir.
             tmpdir = max(rankable, key=operator.itemgetter(1))[0]
@@ -173,15 +187,22 @@ def maybe_start_new_plot(
                 unused_dirs = [
                     d.rstrip("/") for d in dst_dirs if d not in dir2ph.keys()
                 ]
+                unused_dirs_with_space = []
+                for d in unused_dirs:
+                    if plot_util.df_b(d) >= plot_util.get_plotsize(ksize):
+                        unused_dirs_with_space.append(d)
+                    else:
+                        root_logger.info("Currently inadequate space ({0}) for new plot at candidate dst path: {1} Will consider it for next time.".format( 
+                            plot_util.human_format(plot_util.df_b(d), 0), d))
                 dstdir = ""
-                if unused_dirs:
-                    dstdir = random.choice(unused_dirs)
-                else:
+                if unused_dirs_with_space:
+                    dstdir = random.choice(unused_dirs_with_space)
 
-                    def key(key: str) -> job.Phase:
-                        return dir2ph[key]
-
-                    dstdir = max(dir2ph, key=key)
+            if plot_util.df_b(dstdir) <= plot_util.get_plotsize(ksize):
+                return (False, 
+                        "Currently inadequate space ({0}) for new plot at selected dst path: {1} Will check again shortly.".format( 
+                            plot_util.human_format(plot_util.df_b(dstdir), 0), dstdir)
+                        )
 
             log_file_path = log_cfg.create_plot_log_path(time=pendulum.now())
 

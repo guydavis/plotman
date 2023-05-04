@@ -18,7 +18,7 @@ def df_b(d: str) -> int:
     usage = shutil.disk_usage(d)
     return usage.free
 
-# Deprecated now that compressed plots are here...
+# Used to determine max size of uncompressed plots at a given k-size
 def get_plotsize(k: int) -> int:
     return (int)(_get_plotsize_scaler(k) * k * pow(2, k))
 
