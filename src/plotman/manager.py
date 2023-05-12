@@ -198,7 +198,7 @@ def maybe_start_new_plot(
                 if unused_dirs_with_space:
                     dstdir = random.choice(unused_dirs_with_space)
 
-            if dstdir == '/':
+            if dstdir == '/' or dstdir == "":
                 return (False, 
                         "No available destination path. Skipping plot launching at this time.  Will check again shortly.")
 
