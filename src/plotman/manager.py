@@ -197,6 +197,10 @@ def maybe_start_new_plot(
                 dstdir = ""
                 if unused_dirs_with_space:
                     dstdir = random.choice(unused_dirs_with_space)
+                else:
+                    def key(key: str) -> job.Phase:
+                        return dir2ph[key]
+                    dstdir = max(dir2ph, key=key)
 
             if dstdir == '/' or dstdir == "":
                 return (False, 
