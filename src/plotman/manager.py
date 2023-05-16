@@ -197,8 +197,16 @@ def maybe_start_new_plot(
                 dstdir = ""
                 if unused_dirs_with_space:
                     dstdir = random.choice(unused_dirs_with_space)
+                else:
+                    def key(key: str) -> job.Phase:
+                        return dir2ph[key]
+                    dstdir = max(dir2ph, key=key)
 
-            if plot_util.df_b(dstdir) <= plot_util.get_plotsize(ksize):
+            if dstdir == '/' or dstdir == "":
+                return (False, 
+                        "No available destination path. Skipping plot launching at this time.  Will check again shortly.")
+
+            if os.path.exists(dstdir) and plot_util.df_b(dstdir) <= plot_util.get_plotsize(ksize):
                 return (False, 
                         "Currently inadequate space ({0}) for new plot at selected dst path: {1} Will check again shortly.".format( 
                             plot_util.human_format(plot_util.df_b(dstdir), 0), dstdir)
