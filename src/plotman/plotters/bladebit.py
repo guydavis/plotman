@@ -34,6 +34,7 @@ class Options:
     diskplot: bool = False  # Deprecated
     disk_128: bool = False
     disk_16: bool = False
+    no_direct_io = False
 
     def chosen_executable(self) -> str:
         if self.mode == 'gpuplot':
@@ -100,6 +101,8 @@ def create_command_line(
 
     if options.no_numa:
         args.append("--no-numa")
+    if options.no_direct_io:
+        args.append("--no-direct-io")
 
     args.append("--compress")
     args.append(str(options.compression))
@@ -1124,8 +1127,8 @@ def _cli_9fac46aff0476e829d476412de18497a3a2f7ed8() -> None:
 def _cli_a85283946c56b5ae1e5b673f62143417db96247b() -> None:
     pass
 
-# BladeBit Git on 2023-08-31 -> https://github.com/Chia-Network/bladebit/commit/076eba490f1c08b3a7bf10ea0a08f80be758c7b9
-@commands.register(version=(3, 0, 1))
+# BladeBit Git on 2023-10-08 -> https://github.com/Chia-Network/bladebit/commit/e9836f8bd963321457bc86eb5d61344bfb76dcf0
+@commands.register(version=(3, 1, 0))
 @click.command(context_settings=dict(allow_extra_args=True,))
 @click.option(
     "-t",
@@ -1211,6 +1214,15 @@ def _cli_a85283946c56b5ae1e5b673f62143417db96247b() -> None:
     help=(
         "Disable automatic NUMA aware memory binding."
         "  If you set this parameter in a NUMA system you will likely get degraded performance."
+    ),
+    is_flag=True,
+    type=bool,
+    default=False,
+)
+@click.option(
+    "--no-direct-io",
+    help=(
+        "Disable direct I/O when writing plot files. Enable this if writing to a storage destination that does not support direct I/O."
     ),
     is_flag=True,
     type=bool,
@@ -1323,5 +1335,5 @@ def _cli_a85283946c56b5ae1e5b673f62143417db96247b() -> None:
     default=pathlib.Path("."),
     # show_default=True,
 )
-def _cli_076eba490f1c08b3a7bf10ea0a08f80be758c7b9() -> None:
+def _cli_e9836f8bd963321457bc86eb5d61344bfb76dcf0() -> None:
     pass
