@@ -34,7 +34,7 @@ class Options:
     diskplot: bool = False  # Deprecated
     disk_128: bool = False
     disk_16: bool = False
-    no_direct_io = False
+    no_direct_io: bool = False
 
     def chosen_executable(self) -> str:
         if self.mode == 'gpuplot':
