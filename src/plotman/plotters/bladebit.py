@@ -411,7 +411,7 @@ def tmp2_dir(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
     return attr.evolve(info, tmp2_dir=match.group(1))
 
 @handlers.register(
-    expression=r"^Plot .*/(?P<filename>(?P<name>plot-k(?P<size>\d+)(-c(?P<lvl>\d))?-(?P<year>\d+)-(?P<month>\d+)-(?P<day>\d+)-(?P<hour>\d+)-(?P<minute>\d+)-(?P<plot_id>\w+)).plot) .*"
+    expression=r"^Plot .*/(?P<filename>(?P<name>plot-k(?P<size>\d+)(-c(?P<lvl>\d+))?-(?P<year>\d+)-(?P<month>\d+)-(?P<day>\d+)-(?P<hour>\d+)-(?P<minute>\d+)-(?P<plot_id>\w+)).plot) .*"
 )
 def plot_name_line(match: typing.Match[str], info: SpecificInfo) -> SpecificInfo:
     # Plot /mnt/tmp/01/manual-transfer/plot-k32-2021-08-29-22-22-1fc7b57baae24da78e3bea44d58ab51f162a3ed4d242bab2fbcc24f6577d88b3.plot finished writing to disk:
