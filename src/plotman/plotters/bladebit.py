@@ -34,6 +34,7 @@ class Options:
     diskplot: bool = False  # Deprecated
     disk_128: bool = False
     disk_16: bool = False
+    check_plots: bool = False 
 
     def chosen_executable(self) -> str:
         if self.mode == 'gpuplot':
@@ -150,6 +151,8 @@ def create_command_line(
             args.append("--disk-128")
         elif options.disk_16:
             args.append("--disk-16")
+        elif options.check_plots
+            args.append("--check 1")
 
     if options.mode == 'diskplot' and tmpdir is not None:
         args.append("-t1")
@@ -166,6 +169,7 @@ def create_command_line(
         if tmp2dir is not None:
             args.append("-t2")
             args.append(tmp2dir)
+
 
     args.append(dstdir)
 
