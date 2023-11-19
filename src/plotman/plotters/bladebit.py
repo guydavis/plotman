@@ -1341,5 +1341,6 @@ def _cli_a85283946c56b5ae1e5b673f62143417db96247b() -> None:
     type=click.Path(),
     default=pathlib.Path("."),
     # show_default=True,
+)
 def _cli_e9836f8bd963321457bc86eb5d61344bfb76dcf0() -> None:
     pass
