@@ -1333,5 +1333,13 @@ def _cli_a85283946c56b5ae1e5b673f62143417db96247b() -> None:
     help="UNDOCUMENTED FEATURE: On cudaplot, allow plots to be checked via the --check <n> parameter.",
     type=int,
 )
+@click.argument(
+    "out_dir",
+    # help=(
+    #     "Output directory in which to output the plots." "  This directory must exist."
+    # ),
+    type=click.Path(),
+    default=pathlib.Path("."),
+    # show_default=True,
 def _cli_e9836f8bd963321457bc86eb5d61344bfb76dcf0() -> None:
     pass
