@@ -35,7 +35,8 @@ class Options:
     disk_128: bool = False
     disk_16: bool = False
     no_direct_io: bool = False
-    check_plots: bool = False 
+    check_plot: bool = False                # Perform a plot check for <n> proofs on the newly created plot.
+    check-threshold: bool = False           # Proof threshold rate below which the plots that don't pass the check will be deleted.  That is, the number of proofs fetched / proof check count  must be above or equal to this threshold to pass. (default=0.6).
 
     def chosen_executable(self) -> str:
         if self.mode == 'gpuplot':
@@ -154,8 +155,10 @@ def create_command_line(
             args.append("--disk-128")
         elif options.disk_16:
             args.append("--disk-16")
-        if options.check_plots:
-            args.append("--check 1")
+            
+    if options.mode == "gpuplot" and options.check_plot:
+            args.append("--check 100")
+            # args.append("--check-threshold 0.6")   # Automated plot deletion when plotcheck threshhold is below 0.6. Not yet used by us.
 
     if options.mode == 'diskplot' and tmpdir is not None:
         args.append("-t1")
