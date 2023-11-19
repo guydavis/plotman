@@ -173,9 +173,7 @@ def create_command_line(
             args.append("-t2")
             args.append(tmp2dir)
 
-
     args.append(dstdir)
-
     return args
 
 
@@ -1328,16 +1326,6 @@ def _cli_a85283946c56b5ae1e5b673f62143417db96247b() -> None:
     help="Create a plot by using the a CUDA-capable GPU.",
     type=str,
     is_flag=True,
-    default=False,
-)
-@click.option(
-    "--no-cpu-affinity",
-    help=(
-        "Disable assigning automatic thread affinity."
-        "  This is useful when running multiple simultaneous instances of bladebit as you can manually assign thread affinity yourself when launching bladebit."
-    ),
-    is_flag=True,
-    type=bool,
     default=False,
 )
 @click.option(
