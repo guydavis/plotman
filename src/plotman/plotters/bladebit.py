@@ -154,7 +154,7 @@ def create_command_line(
             args.append("--disk-128")
         elif options.disk_16:
             args.append("--disk-16")
-        if options.check_plots
+        if options.check_plots:
             args.append("--check 1")
 
     if options.mode == 'diskplot' and tmpdir is not None:
