@@ -35,6 +35,7 @@ class Options:
     disk_128: bool = False
     disk_16: bool = False
     no_direct_io: bool = False
+    check_plots: bool = False 
 
     def chosen_executable(self) -> str:
         if self.mode == 'gpuplot':
@@ -153,6 +154,8 @@ def create_command_line(
             args.append("--disk-128")
         elif options.disk_16:
             args.append("--disk-16")
+        if options.check_plots
+            args.append("--check 1")
 
     if options.mode == 'diskplot' and tmpdir is not None:
         args.append("-t1")
@@ -171,7 +174,6 @@ def create_command_line(
             args.append(tmp2dir)
 
     args.append(dstdir)
-
     return args
 
 
@@ -1325,6 +1327,11 @@ def _cli_a85283946c56b5ae1e5b673f62143417db96247b() -> None:
     type=str,
     is_flag=True,
     default=False,
+)
+@click.option(
+    "--check",
+    help="UNDOCUMENTED FEATURE: On cudaplot, allow plots to be checked via the --check <n> parameter.",
+    type=int,
 )
 @click.argument(
     "out_dir",
