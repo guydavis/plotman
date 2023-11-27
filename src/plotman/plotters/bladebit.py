@@ -35,6 +35,8 @@ class Options:
     disk_128: bool = False
     disk_16: bool = False
     no_direct_io: bool = False
+    check_plots: typing.Optional[int] = None
+    check_threshold: typing.Optional[int] = None
 
     def chosen_executable(self) -> str:
         if self.mode == 'gpuplot':
@@ -152,7 +154,13 @@ def create_command_line(
         if options.disk_128:
             args.append("--disk-128")
         elif options.disk_16:
-            args.append("--disk-16")
+            args.append("--disk-16")     
+        if options.check_plots:
+            args.append("--check")
+            args.append(str(options.check_plots))
+        if options.check_threshold:
+            args.append("--check-threshold")
+            args.append(str(options.check_threshold))
 
     if options.mode == 'diskplot' and tmpdir is not None:
         args.append("-t1")
@@ -171,7 +179,6 @@ def create_command_line(
             args.append(tmp2dir)
 
     args.append(dstdir)
-
     return args
 
 
@@ -1325,6 +1332,16 @@ def _cli_a85283946c56b5ae1e5b673f62143417db96247b() -> None:
     type=str,
     is_flag=True,
     default=False,
+)
+@click.option(
+    "--check",
+    help="UNDOCUMENTED FEATURE: On cudaplot, allow plots to be checked via the --check <n> parameter. Try n=100 to start.",
+    type=int,
+)
+@click.option(
+    "--check-threshold",
+    help="UNDOCUMENTED FEATURE: On cudaplot, delete plots that don't check as valid after creation, based on threshold between 0 and 1.",
+    type=int,
 )
 @click.argument(
     "out_dir",
