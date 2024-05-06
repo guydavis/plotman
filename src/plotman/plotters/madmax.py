@@ -37,10 +37,11 @@ class Options:
 
     def chosen_executable(self) -> str:
         if self.mode == 'gpuplot':
+            if self.k == 32 and self.compression >= 30:
+                return "cuda_plot_k32_v3" # Another new fomat (Gigahorse v3.0)
             return "cuda_plot_k{0}".format(self.k)
         if self.k > 32:
             return self.executable_k34
-
         return self.executable
 
 
