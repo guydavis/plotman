@@ -215,7 +215,7 @@ class Plotter:
         if len(command_line) == 0:
             return False
 
-        return os.path.basename(command_line[0]).lower() in {
+        return any(os.path.basename(command_line[0]).lower().startswith(prefix) for prefix in {
             "chia_plot",
             "chia_plot_k34",
             "cuda_plot_k26",
@@ -224,7 +224,7 @@ class Plotter:
             "cuda_plot_k31",
             "cuda_plot_k32",
             "cuda_plot_k33",
-        }
+        })
 
     def common_info(self) -> plotman.plotters.CommonInfo:
         return self.info.common()
