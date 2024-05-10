@@ -223,6 +223,7 @@ class Plotter:
             "cuda_plot_k30",
             "cuda_plot_k31",
             "cuda_plot_k32",
+            "cuda_plot_k32_v3",
             "cuda_plot_k33",
         }
 
